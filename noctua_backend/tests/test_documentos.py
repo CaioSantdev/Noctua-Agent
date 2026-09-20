@@ -10,6 +10,7 @@ from app.core.config import obter_configuracoes
 from app.infrastructure.banco import obter_sessao
 from app.main import app
 from app.models.base import Base
+from app.services.servico_rag import ServicoRag
 
 
 def test_enviar_listar_e_obter_documento_txt(monkeypatch, tmp_path) -> None:
@@ -17,6 +18,7 @@ def test_enviar_listar_e_obter_documento_txt(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("DATABASE_URL", "sqlite+pysqlite://")
     monkeypatch.setenv("DIRETORIO_ARQUIVOS", str(tmp_path / "arquivos"))
     obter_configuracoes.cache_clear()
+    monkeypatch.setattr(ServicoRag, "indexar_documento", lambda *_: None)
 
     engine = create_engine(
         "sqlite+pysqlite://",

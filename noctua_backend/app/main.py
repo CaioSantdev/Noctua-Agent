@@ -5,6 +5,7 @@ from fastapi import FastAPI
 
 from app.api.routes.saude import roteador as roteador_saude
 from app.api.routes.documentos import roteador as roteador_documentos
+from app.api.routes.busca import roteador as roteador_busca
 from app.services.servico_saude import ServicoSaude
 
 logger = logging.getLogger(__name__)
@@ -21,3 +22,4 @@ async def ciclo_de_vida(app: FastAPI):
 app = FastAPI(title="API Noctua", lifespan=ciclo_de_vida)
 app.include_router(roteador_saude)
 app.include_router(roteador_documentos)
+app.include_router(roteador_busca)
