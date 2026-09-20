@@ -2,7 +2,7 @@
 
 ## Estado atual
 
-Sprint 2 concluída.
+Sprint 3 concluída.
 
 Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, backend e PostgreSQL com pgvector habilitado, e os ambientes versionados por `uv` (`noctua_backend/uv.lock`) e npm (`noctua_frontend/package-lock.json`).
 
@@ -32,9 +32,18 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 - Retrieval sem LLM validado com pgvector e filtro pela organização do backend.
 - Consulta de PDF real validada em português, inglês e alemão. O limiar padrão é `0.30`, adequado como ponto inicial para recuperação multilíngue.
 
+## Sprint 3 - RAG + LLM
+
+- Endpoint `POST /chat` implementado com entrada `question` e saída `answer` e `sources`.
+- O contexto é composto apenas por chunks recuperados para a organização configurada no backend e respeita `MAX_TOKENS_CONTEXTO`.
+- A LLM recebe instruções para responder somente a partir do contexto e no idioma da pergunta.
+- Fontes são geradas a partir dos metadados dos chunks e documentos; a LLM não define nomes de arquivo nem páginas.
+- Sem contexto recuperado, o chat retorna a mensagem de insuficiência de informações sem chamar a LLM.
+- A API Responses é usada com `store=False` para não armazenar respostas que contenham contexto de documentos.
+- Fluxo integrado validado: pergunta, recuperação, contexto, LLM, resposta e fontes.
+
 ## Ainda não implementado
 
 - Autenticação e multi-tenancy com identificação de organização real.
-- Geração da resposta final e fontes por LLM.
 - Interface React para envio, consulta e apresentação de fontes.
 - Processamento assíncrono com workers e Redis.
