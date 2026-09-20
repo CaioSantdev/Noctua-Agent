@@ -1,4 +1,5 @@
 import os
+import uuid
 from dataclasses import dataclass
 from functools import lru_cache
 
@@ -9,6 +10,13 @@ class Configuracoes:
 
     url_banco: str
     diretorio_arquivos: str
+    organizacao_padrao_id: uuid.UUID
+    chave_api_openai: str | None
+    modelo_embedding: str
+    tamanho_chunk: int
+    sobreposicao_chunk: int
+    max_trechos_recuperados: int
+    limiar_similaridade: float
 
 
 @lru_cache
@@ -21,4 +29,11 @@ def obter_configuracoes() -> Configuracoes:
     return Configuracoes(
         url_banco=url_banco,
         diretorio_arquivos=os.getenv("DIRETORIO_ARQUIVOS", "/tmp/noctua-arquivos"),
+        organizacao_padrao_id=uuid.UUID(os.getenv("ORGANIZACAO_PADRAO_ID", "00000000-0000-0000-0000-000000000001")),
+        chave_api_openai=os.getenv("OPENAI_API_KEY"),
+        modelo_embedding=os.getenv("MODELO_EMBEDDING", "text-embedding-3-small"),
+        tamanho_chunk=int(os.getenv("TAMANHO_CHUNK", "800")),
+        sobreposicao_chunk=int(os.getenv("SOBREPOSICAO_CHUNK", "120")),
+        max_trechos_recuperados=int(os.getenv("MAX_TRECHOS_RECUPERADOS", "5")),
+        limiar_similaridade=float(os.getenv("LIMIAR_SIMILARIDADE", "0.75")),
     )

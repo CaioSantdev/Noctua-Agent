@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import DateTime, Enum, Integer, String, Text, func
+from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -23,6 +23,7 @@ class Documento(Base):
     __tablename__ = "documentos"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    organizacao_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizacoes.id"), nullable=False)
     nome_arquivo: Mapped[str] = mapped_column(String(255), nullable=False)
     extensao: Mapped[str] = mapped_column(String(10), nullable=False)
     tamanho_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
