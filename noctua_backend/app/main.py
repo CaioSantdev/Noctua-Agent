@@ -7,6 +7,7 @@ from app.api.routes.saude import roteador as roteador_saude
 from app.api.routes.documentos import roteador as roteador_documentos
 from app.api.routes.busca import roteador as roteador_busca
 from app.api.routes.chat import roteador as roteador_chat
+from app.api.routes.autenticacao import roteador as roteador_autenticacao
 from app.services.servico_saude import ServicoSaude
 
 logger = logging.getLogger(__name__)
@@ -25,3 +26,4 @@ app.include_router(roteador_saude)
 app.include_router(roteador_documentos)
 app.include_router(roteador_busca)
 app.include_router(roteador_chat)
+app.include_router(roteador_autenticacao)

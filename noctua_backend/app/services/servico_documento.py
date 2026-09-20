@@ -26,8 +26,9 @@ class ErroProcessamentoDocumento(RuntimeError):
 class ServicoDocumento:
     """Orquestra armazenamento, extração e persistência de documentos."""
 
-    def __init__(self, repositorio: RepositorioDocumento) -> None:
+    def __init__(self, repositorio: RepositorioDocumento, organizacao_id: uuid.UUID) -> None:
         self.repositorio = repositorio
+        self.organizacao_id = organizacao_id
         self.armazenamento = ArmazenamentoLocal(obter_configuracoes().diretorio_arquivos)
         self.servico_rag = ServicoRag(RepositorioTrecho(repositorio.sessao))
 
@@ -39,7 +40,7 @@ class ServicoDocumento:
         caminho = self.armazenamento.salvar(nome_armazenado, conteudo)
         documento = Documento(
             id=identificador,
-            organizacao_id=obter_configuracoes().organizacao_padrao_id,
+            organizacao_id=self.organizacao_id,
             nome_arquivo=Path(nome_arquivo).name,
             extensao=extensao,
             tamanho_bytes=len(conteudo),
@@ -65,12 +66,12 @@ class ServicoDocumento:
 
     def listar(self) -> list[Documento]:
         """Lista todos os documentos persistidos."""
-        return self.repositorio.listar(obter_configuracoes().organizacao_padrao_id)
+        return self.repositorio.listar(self.organizacao_id)
 
     def obter(self, identificador: uuid.UUID) -> Documento | None:
         """Obtém um documento persistido pelo identificador."""
         return self.repositorio.obter_por_id(
-            identificador, obter_configuracoes().organizacao_padrao_id
+            identificador, self.organizacao_id
         )
 
     def reindexar(self, identificador: uuid.UUID) -> Documento | None:

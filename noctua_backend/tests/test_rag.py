@@ -47,7 +47,9 @@ def test_busca_restringe_resultados_a_organizacao_do_backend(monkeypatch) -> Non
             assert limite == 5
             return [(trecho, 0.08)]
 
-    resultados = ServicoRag(RepositorioFalso()).buscar("Qual banco a aplicação utiliza?")
+    resultados = ServicoRag(RepositorioFalso()).buscar(
+        "Qual banco a aplicação utiliza?", organizacao
+    )
 
     assert len(resultados) == 1
     assert resultados[0].trecho.conteudo == "O sistema utiliza PostgreSQL como banco de dados."
@@ -78,7 +80,7 @@ def test_busca_recebe_pergunta_em_alemao_sem_escolher_organizacao(monkeypatch) -
             assert organizacao_id == organizacao
             return [(trecho, 0.65)]
 
-    resultados = ServicoRag(RepositorioFalso()).buscar(pergunta)
+    resultados = ServicoRag(RepositorioFalso()).buscar(pergunta, organizacao)
 
     assert len(resultados) == 1
     assert resultados[0].similaridade == 0.35
