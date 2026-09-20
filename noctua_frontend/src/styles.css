@@ -1,2 +1,228 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Playfair+Display:wght@700&display=swap');
-*{box-sizing:border-box}body{margin:0;font-family:'DM Sans',sans-serif;color:#242424}.pagina{min-height:100vh;display:grid;grid-template-columns:1.1fr .9fr}.marca{background:#d52b1e;color:#fff;padding:52px clamp(32px,8vw,110px);display:flex;flex-direction:column;justify-content:space-between;min-height:680px;position:relative;overflow:hidden}.logo{font-weight:700;letter-spacing:.18em}.marca p,.etiqueta{font-size:.72rem;font-weight:700;letter-spacing:.14em}.marca h1{font:700 clamp(3rem,5vw,5rem)/1.05 'Playfair Display',serif;margin:12px 0 24px}.marca span{display:block;max-width:430px;color:#ffe4e1;line-height:1.65}.marca b{position:absolute;right:7%;bottom:-13%;font-size:25rem;color:#ffffff18}.acesso{display:grid;place-items:center;background:#f8f7f4;padding:32px}.cartao{width:min(100%,410px)}h2{font-size:2rem;margin:0;letter-spacing:-.05em}.cartao>p{color:#6d6d6d;line-height:1.5}.etiqueta{color:#d52b1e!important}.abas{display:grid;grid-template-columns:1fr 1fr;padding:4px;background:#e9e5e1;border-radius:9px;margin:30px 0 24px}.abas button,.ajuda{border:0;background:transparent;padding:10px;cursor:pointer}.abas .ativo{background:#fff;border-radius:6px;font-weight:700}form{display:grid;gap:16px}label{display:grid;gap:7px;font-size:.85rem;font-weight:600}input{padding:13px;border:1px solid #d8d4cf;border-radius:8px;font:inherit}.principal{margin-top:8px;border:0;border-radius:8px;padding:14px;background:#d52b1e;color:#fff;text-align:left;font-weight:700;cursor:pointer}.principal span{float:right}.ajuda{display:block;margin:18px auto;color:#a32016;font-size:.85rem}small{display:block;margin-top:14px;color:#6d6d6d}@media(max-width:760px){.pagina{grid-template-columns:1fr}.marca{min-height:350px;padding:34px}.marca h1{font-size:2.8rem}}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'DM Sans', sans-serif;
+    color: #242424;
+}
+
+.pagina {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+}
+
+/* =========================
+   LADO ESQUERDO / MARCA
+========================= */
+
+.marca {
+    background: #d52b1e;
+    color: #fff;
+    padding: 52px clamp(32px, 8vw, 110px);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    min-height: 680px;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo {
+    font-weight: 700;
+    letter-spacing: 0.18em;
+}
+
+.marca p,
+.etiqueta {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+}
+
+.marca h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 5vw, 5rem);
+    font-weight: 700;
+    line-height: 1.05;
+
+    margin: 12px 0 24px;
+}
+
+.marca span {
+    display: block;
+    max-width: 430px;
+
+    color: #ffe4e1;
+    line-height: 1.65;
+}
+
+.marca b {
+    position: absolute;
+    right: 7%;
+    bottom: -13%;
+
+    font-size: 25rem;
+    color: #ffffff18;
+}
+
+/* =========================
+   LADO DIREITO / LOGIN
+========================= */
+
+.acesso {
+    display: grid;
+    place-items: center;
+
+    background: #f8f7f4;
+    padding: 32px;
+}
+
+.cartao {
+    width: min(100%, 410px);
+}
+
+h2 {
+    font-size: 2rem;
+    margin: 0;
+    letter-spacing: -0.05em;
+}
+
+.cartao > p {
+    color: #6d6d6d;
+    line-height: 1.5;
+}
+
+.etiqueta {
+    color: #d52b1e !important;
+}
+
+/* =========================
+   ABAS
+========================= */
+
+.abas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    padding: 4px;
+    margin: 30px 0 24px;
+
+    background: #e9e5e1;
+    border-radius: 9px;
+}
+
+.abas button,
+.ajuda {
+    border: 0;
+    background: transparent;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.abas .ativo {
+    background: #fff;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+/* =========================
+   FORMULÁRIO
+========================= */
+
+form {
+    display: grid;
+    gap: 16px;
+}
+
+label {
+    display: grid;
+    gap: 7px;
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+input {
+    padding: 13px;
+
+    border: 1px solid #d8d4cf;
+    border-radius: 8px;
+
+    font: inherit;
+}
+
+/* =========================
+   BOTÕES
+========================= */
+
+.principal {
+    margin-top: 8px;
+    padding: 14px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: #d52b1e;
+    color: #fff;
+
+    text-align: left;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.principal span {
+    float: right;
+}
+
+.ajuda {
+    display: block;
+    margin: 18px auto;
+
+    color: #a32016;
+    font-size: 0.85rem;
+}
+
+/* =========================
+   TEXTOS AUXILIARES
+========================= */
+
+small {
+    display: block;
+    margin-top: 14px;
+    color: #6d6d6d;
+}
+
+.dashboard { min-height: 100vh; padding: 32px clamp(24px, 8vw, 110px); background: #f8f7f4; }
+.dashboard header { display: flex; justify-content: space-between; padding-bottom: 24px; border-bottom: 1px solid #e2ded9; }
+.sair, .acoes button { border: 1px solid #d8d4cf; border-radius: 8px; padding: 10px 15px; background: #fff; cursor: pointer; }
+.cabecalho-dashboard { padding: 45px 0 20px; }.cabecalho-dashboard h1 { font: 700 3rem 'Playfair Display', serif; margin: 8px 0; }
+.acoes { display: flex; gap: 10px; }.acoes .ativo { color: #fff; background: #d52b1e; border-color: #d52b1e; }
+.painel-dashboard, .documentos { padding: 28px; margin-top: 20px; background: #fff; border: 1px solid #e2ded9; border-radius: 12px; }
+.campo-chat { padding: 14px; color: #777; border: 1px solid #d8d4cf; border-radius: 8px; }.campo-chat span { float: right; color: #d52b1e; }
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 760px) {
+    .pagina {
+        grid-template-columns: 1fr;
+    }
+
+    .marca {
+        min-height: 350px;
+        padding: 34px;
+    }
+
+    .marca h1 {
+        font-size: 2.8rem;
+    }
+}
