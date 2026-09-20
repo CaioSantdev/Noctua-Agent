@@ -157,6 +157,11 @@ input {
 
     font: inherit;
 }
+input::placeholder { color: #8b8580; opacity: 1; }
+.carregando { display:inline-flex; gap:8px; align-items:center; color:#a32016; font-weight:700; }
+.carregando::before { content:''; width:14px; height:14px; border:2px solid #f0c1bc; border-top-color:#d52b1e; border-radius:50%; animation:girar .8s linear infinite; }
+.sucesso { color:#197442; font-weight:700; }
+@keyframes girar { to { transform:rotate(360deg); } }
 
 /* =========================
    BOTÕES
