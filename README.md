@@ -26,7 +26,7 @@ Protótipo de agente de base de conhecimento multi-tenant.
 
 ## Escopo atual
 
-As sprints 0, 1 e 2 estão concluídas. A API permite enviar e consultar documentos PDF/TXT, gerar embeddings e recuperar trechos semanticamente relacionados em português, inglês e alemão. O endpoint de busca ainda faz apenas *retrieval*: a resposta final gerada por LLM será implementada em uma sprint posterior.
+As sprints 0, 1 e 2 estão concluídas. A Sprint 3 adiciona o chat RAG: a API recupera trechos semanticamente relacionados em português, inglês e alemão, limita o contexto por tokens e gera uma resposta fundamentada por LLM com fontes.
 
 O desenvolvimento usa uma organização padrão configurada somente no backend. A autenticação e a identificação de organizações reais continuam pendentes; por isso o frontend não envia nem escolhe `organization_id`.
 
@@ -42,6 +42,17 @@ O desenvolvimento usa uma organização padrão configurada somente no backend. 
 - `GET /documents`: lista os documentos enviados.
 - `GET /documents/{id}`: retorna os metadados de um documento.
 - `POST /search`: recupera trechos semanticamente relevantes, sem usar LLM.
+- `POST /chat`: responde a uma pergunta usando apenas os trechos recuperados e retorna as fontes.
 - `POST /documents/{id}/reindex`: indexa documentos enviados antes do pipeline vetorial.
 
 Use `http://localhost:8000/docs` para testar os endpoints interativamente.
+
+Exemplo de corpo para `POST /chat`:
+
+```json
+{
+  "question": "Qual banco de dados é utilizado?"
+}
+```
+
+Quando não houver contexto relevante, o Noctua não usa conhecimento geral: retorna uma mensagem de insuficiência de informações e uma lista vazia de fontes.
