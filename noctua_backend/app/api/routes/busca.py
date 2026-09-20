@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.dependencies.autenticacao import obter_usuario_autenticado
+from app.api.erros import converter_erro_openai
 from app.infrastructure.banco import obter_sessao
 from app.models.usuario import Usuario
 from app.repositories.repositorio_trecho import RepositorioTrecho
@@ -23,10 +24,7 @@ async def buscar_conhecimento(
             consulta.pergunta, usuario.organizacao_id
         )
     except RuntimeError as erro:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="A busca não está disponível. Configure OPENAI_API_KEY.",
-        ) from erro
+        raise converter_erro_openai(erro) from erro
     return [
         TrechoRecuperado(
             documento_id=resultado.trecho.documento_id,

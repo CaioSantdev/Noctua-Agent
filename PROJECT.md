@@ -2,7 +2,7 @@
 
 ## Estado atual
 
-Sprint 4 pronta para ativação local.
+Sprint 5 concluída.
 
 Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, backend e PostgreSQL com pgvector habilitado, e os ambientes versionados por `uv` (`noctua_backend/uv.lock`) e npm (`noctua_frontend/package-lock.json`).
 
@@ -51,6 +51,13 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 - Upload, listagem, consulta, reindexação, busca vetorial e chat exigem Bearer token.
 - O tenant é obtido pelo usuário persistido no backend, e não por `organization_id` enviado pelo cliente.
 - Teste automatizado comprova que tenant A não lista nem acessa documento do tenant B.
+
+## Sprint 5 - Qualidade e robustez
+
+- Retry com backoff exponencial implementado para timeout, falha de conexão, 429 transitório e erros internos da OpenAI.
+- Falhas permanentes, como credencial inválida, requisição inválida e saldo esgotado, não recebem retry.
+- Rotas de busca e chat retornam respostas HTTP seguras e específicas para falhas da IA.
+- Testes com mocks validam retry de conexão e ausência de retry para saldo esgotado.
 
 ## Ainda não implementado
 

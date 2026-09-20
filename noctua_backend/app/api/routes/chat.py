@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.dependencies.autenticacao import obter_usuario_autenticado
+from app.api.erros import converter_erro_openai
 from app.infrastructure.banco import obter_sessao
 from app.models.usuario import Usuario
 from app.repositories.repositorio_documento import RepositorioDocumento
@@ -34,10 +35,7 @@ async def conversar(
     try:
         resultado = servico.responder(consulta.question, usuario.organizacao_id)
     except RuntimeError as erro:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="O chat não está disponível. Verifique a configuração da OpenAI.",
-        ) from erro
+        raise converter_erro_openai(erro) from erro
 
     return RespostaChat(
         answer=resultado.resposta,
