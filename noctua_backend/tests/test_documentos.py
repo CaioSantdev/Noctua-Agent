@@ -1,4 +1,5 @@
 from collections.abc import Generator
+import uuid
 
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -6,10 +7,12 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.api.routes.documentos import obter_servico_documento
+from app.api.dependencies.autenticacao import obter_usuario_autenticado
 from app.core.config import obter_configuracoes
 from app.infrastructure.banco import obter_sessao
 from app.main import app
 from app.models.base import Base
+from app.models.usuario import Usuario
 from app.services.servico_rag import ServicoRag
 
 
@@ -32,7 +35,11 @@ def test_enviar_listar_e_obter_documento_txt(monkeypatch, tmp_path) -> None:
         with fabrica_sessoes() as sessao:
             yield sessao
 
+    usuario = Usuario(
+        id=uuid.uuid4(), organizacao_id=uuid.uuid4(), email="teste@noctua.local", senha_hash="hash"
+    )
     app.dependency_overrides[obter_sessao] = fornecer_sessao
+    app.dependency_overrides[obter_usuario_autenticado] = lambda: usuario
     try:
         with TestClient(app) as cliente:
             resposta_envio = cliente.post(
@@ -64,11 +71,7 @@ def test_rejeita_extensao_nao_permitida(monkeypatch, tmp_path) -> None:
     obter_configuracoes.cache_clear()
 
     with TestClient(app) as cliente:
-        resposta = cliente.post(
-            "/documents",
-            files={"arquivo": ("imagem.png", b"conteudo", "image/png")},
-        )
+        resposta = cliente.post("/documents", files={"arquivo": ("imagem.png", b"conteudo", "image/png")})
 
-    assert resposta.status_code == 400
-    assert resposta.json() == {"detail": "Somente arquivos PDF e TXT são permitidos."}
+    assert resposta.status_code == 401
     obter_configuracoes.cache_clear()

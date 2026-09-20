@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass
 
 import tiktoken
@@ -41,10 +42,10 @@ class ServicoChat:
         self.repositorio_documento = repositorio_documento
         self.servico_llm = servico_llm or ServicoLlm()
 
-    def responder(self, pergunta: str) -> RespostaChat:
+    def responder(self, pergunta: str, organizacao_id: uuid.UUID) -> RespostaChat:
         """Responde uma pergunta apenas quando há contexto recuperado."""
-        resultados = self.servico_rag.buscar(pergunta)
-        fontes = self._obter_fontes(resultados)
+        resultados = self.servico_rag.buscar(pergunta, organizacao_id)
+        fontes = self._obter_fontes(resultados, organizacao_id)
         contexto = self._montar_contexto(resultados)
         if not contexto:
             return RespostaChat(resposta=RESPOSTA_SEM_CONTEXTO, fontes=[])
@@ -69,9 +70,10 @@ class ServicoChat:
 
         return codificador.decode(tokens_contexto)
 
-    def _obter_fontes(self, resultados: list[ResultadoBusca]) -> list[FonteResposta]:
+    def _obter_fontes(
+        self, resultados: list[ResultadoBusca], organizacao_id: uuid.UUID
+    ) -> list[FonteResposta]:
         """Cria fontes a partir dos chunks, sem pedir metadados à LLM."""
-        organizacao_id = obter_configuracoes().organizacao_padrao_id
         fontes: list[FonteResposta] = []
         fontes_vistas: set[tuple[str, int | None]] = set()
 

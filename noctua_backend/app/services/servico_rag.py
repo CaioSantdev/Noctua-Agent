@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -47,11 +48,11 @@ class ServicoRag:
         if trechos:
             self.repositorio.adicionar_varios(trechos)
 
-    def buscar(self, pergunta: str) -> list[ResultadoBusca]:
+    def buscar(self, pergunta: str, organizacao_id: uuid.UUID) -> list[ResultadoBusca]:
         """Busca trechos similares na organização configurada no servidor."""
         configuracoes = obter_configuracoes()
         resultados = self.repositorio.buscar_semelhantes(
-            organizacao_id=configuracoes.organizacao_padrao_id,
+            organizacao_id=organizacao_id,
             embedding=self.servico_embedding.gerar(pergunta),
             limite=configuracoes.max_trechos_recuperados,
         )

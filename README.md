@@ -9,6 +9,13 @@ Protótipo de agente de base de conhecimento multi-tenant.
 ## Execução local
 
 1. Copie `.env.example` para `.env` e ajuste os valores locais, se necessário.
+   Gere e informe um segredo JWT local antes de subir a aplicação:
+
+   ```bash
+   openssl rand -hex 32
+   ```
+
+   Use o valor gerado em `JWT_SECRET` no `.env`. Nunca versione esse arquivo.
 2. Execute:
 
    ```bash
@@ -38,6 +45,8 @@ O desenvolvimento usa uma organização padrão configurada somente no backend. 
 ## Endpoints disponíveis
 
 - `GET /health`: confirma a API e o PostgreSQL.
+- `POST /auth/register`: cria uma organização e seu primeiro usuário.
+- `POST /auth/login`: autentica um usuário e retorna um JWT.
 - `POST /documents`: recebe um campo multipart chamado `arquivo` com PDF de até 5 páginas ou TXT, ambos limitados a 10 MB.
 - `GET /documents`: lista os documentos enviados.
 - `GET /documents/{id}`: retorna os metadados de um documento.
@@ -46,6 +55,14 @@ O desenvolvimento usa uma organização padrão configurada somente no backend. 
 - `POST /documents/{id}/reindex`: indexa documentos enviados antes do pipeline vetorial.
 
 Use `http://localhost:8000/docs` para testar os endpoints interativamente.
+
+Após cadastro ou login, copie `access_token`, clique em **Authorize** no Swagger e informe:
+
+```text
+Bearer SEU_ACCESS_TOKEN
+```
+
+Documentos, busca semântica e chat exigem esse token. A organização é obtida do usuário autenticado no backend; não existe campo `organization_id` aceito pelo frontend.
 
 Exemplo de corpo para `POST /chat`:
 

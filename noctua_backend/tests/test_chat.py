@@ -16,8 +16,9 @@ def test_chat_nao_usa_llm_quando_nao_encontra_contexto(monkeypatch) -> None:
     obter_configuracoes.cache_clear()
 
     class RagFalso:
-        def buscar(self, pergunta):
+        def buscar(self, pergunta, organizacao_id):
             assert pergunta == "Quem descobriu o Brasil?"
+            assert organizacao_id == organizacao
             return []
 
     class RepositorioFalso:
@@ -28,8 +29,9 @@ def test_chat_nao_usa_llm_quando_nao_encontra_contexto(monkeypatch) -> None:
         def responder(self, *args):
             raise AssertionError("A LLM não deve ser chamada sem contexto.")
 
+    organizacao = uuid.UUID("00000000-0000-0000-0000-000000000001")
     resposta = ServicoChat(RagFalso(), RepositorioFalso(), LlmFalsa()).responder(
-        "Quem descobriu o Brasil?"
+        "Quem descobriu o Brasil?", organizacao
     )
 
     assert resposta.resposta == RESPOSTA_SEM_CONTEXTO
@@ -55,7 +57,8 @@ def test_chat_respeita_orcamento_e_constroi_fontes_dos_chunks(monkeypatch) -> No
     )
 
     class RagFalso:
-        def buscar(self, pergunta):
+        def buscar(self, pergunta, organizacao_id):
+            assert organizacao_id == organizacao
             return [ResultadoBusca(trecho=trecho, similaridade=0.9)]
 
     class RepositorioFalso:
@@ -79,7 +82,7 @@ def test_chat_respeita_orcamento_e_constroi_fontes_dos_chunks(monkeypatch) -> No
             return "O Noctua utiliza PostgreSQL."
 
     resposta = ServicoChat(RagFalso(), RepositorioFalso(), LlmFalsa()).responder(
-        "Qual banco de dados é utilizado?"
+        "Qual banco de dados é utilizado?", organizacao
     )
 
     assert resposta.resposta == "O Noctua utiliza PostgreSQL."

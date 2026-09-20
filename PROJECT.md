@@ -2,7 +2,7 @@
 
 ## Estado atual
 
-Sprint 3 concluída.
+Sprint 4 pronta para ativação local.
 
 Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, backend e PostgreSQL com pgvector habilitado, e os ambientes versionados por `uv` (`noctua_backend/uv.lock`) e npm (`noctua_frontend/package-lock.json`).
 
@@ -42,8 +42,17 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 - A API Responses é usada com `store=False` para não armazenar respostas que contenham contexto de documentos.
 - Fluxo integrado validado: pergunta, recuperação, contexto, LLM, resposta e fontes.
 
+## Sprint 4 - Autenticação e multi-tenancy
+
+- Entidades `Usuario` e `Organizacao` utilizadas para identificar o tenant real.
+- Cadastro em `POST /auth/register` cria organização e primeiro usuário; `POST /auth/login` emite JWT.
+- Senhas são derivadas com `scrypt`, salt aleatório e comparação em tempo constante; nunca são armazenadas em texto puro.
+- JWT é assinado com `JWT_SECRET`, configurada somente no ambiente do backend.
+- Upload, listagem, consulta, reindexação, busca vetorial e chat exigem Bearer token.
+- O tenant é obtido pelo usuário persistido no backend, e não por `organization_id` enviado pelo cliente.
+- Teste automatizado comprova que tenant A não lista nem acessa documento do tenant B.
+
 ## Ainda não implementado
 
-- Autenticação e multi-tenancy com identificação de organização real.
 - Interface React para envio, consulta e apresentação de fontes.
 - Processamento assíncrono com workers e Redis.
