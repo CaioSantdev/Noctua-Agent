@@ -17,6 +17,8 @@ class Configuracoes:
     sobreposicao_chunk: int
     max_trechos_recuperados: int
     limiar_similaridade: float
+    max_tokens_contexto: int
+    max_paginas_pdf: int
 
 
 @lru_cache
@@ -35,5 +37,7 @@ def obter_configuracoes() -> Configuracoes:
         tamanho_chunk=int(os.getenv("TAMANHO_CHUNK", "800")),
         sobreposicao_chunk=int(os.getenv("SOBREPOSICAO_CHUNK", "120")),
         max_trechos_recuperados=int(os.getenv("MAX_TRECHOS_RECUPERADOS", "5")),
-        limiar_similaridade=float(os.getenv("LIMIAR_SIMILARIDADE", "0.75")),
+        limiar_similaridade=float(os.getenv("LIMIAR_SIMILARIDADE", "0.30")),
+        max_tokens_contexto=int(os.getenv("MAX_TOKENS_CONTEXTO", "4000")),
+        max_paginas_pdf=int(os.getenv("MAX_PAGINAS_PDF", "5")),
     )

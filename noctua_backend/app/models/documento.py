@@ -6,6 +6,7 @@ from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
+from app.models.organizacao import Organizacao  # noqa: F401
 
 
 class StatusDocumento(StrEnum):

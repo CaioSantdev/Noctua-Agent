@@ -55,3 +55,22 @@ async def obter_documento(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento não encontrado.")
 
     return DocumentoDetalhe.model_validate(documento)
+
+
+@roteador.post("/{identificador}/reindex", response_model=DocumentoDetalhe)
+async def reindexar_documento(
+    identificador: uuid.UUID,
+    servico: ServicoDocumento = Depends(obter_servico_documento),
+) -> DocumentoDetalhe:
+    """Gera chunks e embeddings de um documento existente."""
+    try:
+        documento = servico.reindexar(identificador)
+    except RuntimeError as erro:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="A indexação não está disponível. Configure OPENAI_API_KEY.",
+        ) from erro
+
+    if documento is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento não encontrado.")
+    return DocumentoDetalhe.model_validate(documento)

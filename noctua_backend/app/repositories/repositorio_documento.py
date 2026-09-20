@@ -26,11 +26,21 @@ class RepositorioDocumento:
         self.sessao.refresh(documento)
         return documento
 
-    def listar(self) -> list[Documento]:
+    def listar(self, organizacao_id: uuid.UUID) -> list[Documento]:
         """Lista documentos do mais recente para o mais antigo."""
-        consulta = select(Documento).order_by(Documento.criado_em.desc())
+        consulta = (
+            select(Documento)
+            .where(Documento.organizacao_id == organizacao_id)
+            .order_by(Documento.criado_em.desc())
+        )
         return list(self.sessao.scalars(consulta))
 
-    def obter_por_id(self, identificador: uuid.UUID) -> Documento | None:
+    def obter_por_id(
+        self, identificador: uuid.UUID, organizacao_id: uuid.UUID
+    ) -> Documento | None:
         """Obtém um documento pelo identificador."""
-        return self.sessao.get(Documento, identificador)
+        consulta = select(Documento).where(
+            Documento.id == identificador,
+            Documento.organizacao_id == organizacao_id,
+        )
+        return self.sessao.scalar(consulta)
