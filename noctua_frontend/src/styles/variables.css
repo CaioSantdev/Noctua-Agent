@@ -1,0 +1,13 @@
+:root {
+  --vermelho-noctua: #c9231d;
+  --vermelho-escuro: #a91d18;
+  --fundo: #f7f7f5;
+  --superficie: #ffffff;
+  --borda: #e4e2de;
+  --texto: #242424;
+  --texto-suave: #6d6d6d;
+
+  --raio-pequeno: 8px;
+  --raio-medio: 12px;
+  --sombra-suave: 0 3px 14px #24242412;
+}

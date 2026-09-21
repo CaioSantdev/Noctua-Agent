@@ -3,7 +3,9 @@ import uuid
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
+from app.api.dependencies.autenticacao import obter_usuario_autenticado
 from app.infrastructure.banco import obter_sessao
+from app.models.usuario import Usuario
 from app.repositories.repositorio_documento import RepositorioDocumento
 from app.schemas.documento import DocumentoDetalhe, DocumentoResumo
 from app.services.servico_documento import (
@@ -15,9 +17,12 @@ from app.services.servico_documento import (
 roteador = APIRouter(prefix="/documents", tags=["documentos"])
 
 
-def obter_servico_documento(sessao: Session = Depends(obter_sessao)) -> ServicoDocumento:
+def obter_servico_documento(
+    sessao: Session = Depends(obter_sessao),
+    usuario: Usuario = Depends(obter_usuario_autenticado),
+) -> ServicoDocumento:
     """Monta o serviço com o repositório da requisição atual."""
-    return ServicoDocumento(RepositorioDocumento(sessao))
+    return ServicoDocumento(RepositorioDocumento(sessao), usuario.organizacao_id)
 
 
 @roteador.post("", response_model=DocumentoDetalhe, status_code=status.HTTP_201_CREATED)
@@ -54,4 +59,23 @@ async def obter_documento(
     if documento is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento não encontrado.")
 
+    return DocumentoDetalhe.model_validate(documento)
+
+
+@roteador.post("/{identificador}/reindex", response_model=DocumentoDetalhe)
+async def reindexar_documento(
+    identificador: uuid.UUID,
+    servico: ServicoDocumento = Depends(obter_servico_documento),
+) -> DocumentoDetalhe:
+    """Gera chunks e embeddings de um documento existente."""
+    try:
+        documento = servico.reindexar(identificador)
+    except RuntimeError as erro:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="A indexação não está disponível. Configure OPENAI_API_KEY.",
+        ) from erro
+
+    if documento is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento não encontrado.")
     return DocumentoDetalhe.model_validate(documento)

@@ -1,0 +1,37 @@
+.cabecalho-principal {
+  display: flex;
+  height: 76px;
+  padding: 0 clamp(20px, 4vw, 64px);
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--borda);
+  background: var(--superficie);
+}
+
+.marca-dashboard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.marca-dashboard img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.sair {
+  padding: 10px 18px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-pequeno);
+  background: var(--superficie);
+  color: var(--texto);
+  cursor: pointer;
+}
+
+.sair:hover {
+  border-color: var(--vermelho-noctua);
+  color: var(--vermelho-noctua);
+}

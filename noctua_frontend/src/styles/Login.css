@@ -1,0 +1,177 @@
+.pagina {
+  display: grid;
+  min-height: 100vh;
+  grid-template-columns: 1.1fr 0.9fr;
+}
+
+.marca {
+  position: relative;
+  display: flex;
+  min-height: 680px;
+  padding: 52px clamp(32px, 8vw, 110px);
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--vermelho-noctua);
+  color: var(--superficie);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.logo img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.marca p {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.marca h1 {
+  margin: 12px 0 24px;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3rem, 5vw, 5rem);
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.marca span {
+  display: block;
+  max-width: 430px;
+  color: #ffe4e1;
+  line-height: 1.65;
+}
+
+.marca b {
+  position: absolute;
+  right: 7%;
+  bottom: -13%;
+  color: #ffffff18;
+  font-size: 25rem;
+}
+
+.acesso {
+  display: grid;
+  padding: 32px;
+  place-items: center;
+  background: var(--fundo);
+}
+
+.cartao {
+  width: min(100%, 410px);
+}
+
+.cartao > p {
+  color: var(--texto-suave);
+  line-height: 1.5;
+}
+
+.abas {
+  display: grid;
+  margin: 30px 0 24px;
+  padding: 4px;
+  grid-template-columns: 1fr 1fr;
+  border-radius: 9px;
+  background: #e9e5e1;
+}
+
+.abas button {
+  padding: 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.abas .ativo {
+  background: var(--superficie);
+  font-weight: 700;
+}
+
+.acesso form {
+  display: grid;
+  gap: 16px;
+}
+
+.acesso label {
+  display: grid;
+  gap: 7px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.acesso input {
+  padding: 13px;
+  border: 1px solid #d8d4cf;
+  border-radius: var(--raio-pequeno);
+}
+
+.acesso input::placeholder {
+  color: #8b8580;
+  opacity: 1;
+}
+
+.campo-senha {
+  position: relative;
+  display: flex;
+}
+
+.campo-senha input {
+  width: 100%;
+  padding-right: 78px;
+}
+
+.campo-senha button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 8px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--vermelho-escuro);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.principal {
+  margin-top: 8px;
+  padding: 14px;
+  border: 0;
+  border-radius: var(--raio-pequeno);
+  background: var(--vermelho-noctua);
+  color: var(--superficie);
+  text-align: left;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.principal:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+@media (max-width: 760px) {
+  .pagina {
+    grid-template-columns: 1fr;
+  }
+
+  .marca {
+    min-height: 350px;
+    padding: 34px;
+  }
+
+  .marca h1 {
+    font-size: 2.8rem;
+  }
+}
