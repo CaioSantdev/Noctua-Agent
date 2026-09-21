@@ -2,7 +2,7 @@
 
 ## Estado atual
 
-Sprint 5 concluída.
+Sprint 6 concluída no frontend.
 
 Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, backend e PostgreSQL com pgvector habilitado, e os ambientes versionados por `uv` (`noctua_backend/uv.lock`) e npm (`noctua_frontend/package-lock.json`).
 
@@ -61,5 +61,14 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 
 ## Ainda não implementado
 
-- Interface React para envio, consulta e apresentação de fontes.
 - Processamento assíncrono com workers e Redis.
+
+## Sprint 6 - Interface web
+
+- Tipos de ambiente do Vite declarados em `src/vite-env.d.ts`.
+- Acesso e cadastro exibem estados de carregamento, sucesso e erro; a senha pode ser mostrada ou ocultada.
+- As telas usam as URLs `/login`, `/cadastro` e `/dashboard`; o dashboard é protegido pela presença do JWT local.
+- O dashboard usa o JWT mantido em `sessionStorage` como Bearer token para listar e enviar documentos e para consultar o chat.
+- Respostas do chat apresentam suas fontes; respostas 401 encerram a sessão local.
+- O painel central alterna entre envio e chat, incluindo as ilustrações correspondentes em `public/imagens`.
+- O frontend é organizado em páginas, componentes reutilizáveis, tipos compartilhados e serviço de comunicação com a API.
