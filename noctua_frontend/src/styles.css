@@ -267,8 +267,10 @@ small {
 .cabecalho-documentos h2 { font-size: 1.1rem; letter-spacing: -.02em; }
 .cabecalho-documentos span, .sem-documentos { color: var(--texto-suave); font-size: .9rem; }
 .grade-documentos { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; padding: 0; margin: 0; list-style: none; }
-.cartao-documento { min-height: 98px; display: grid; grid-template-columns: 42px 1fr; gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--borda); border-radius: 10px; background: var(--superficie); }
+.cartao-documento { min-width: 0; min-height: 98px; display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--borda); border-radius: 10px; background: var(--superficie); overflow: hidden; }
 .icone-arquivo { width: 42px; height: 52px; display: grid; place-items: center; border-radius: 6px; background: #fce9e7; color: var(--vermelho-noctua); font-size: .68rem; font-weight: 700; }
+.icone-arquivo--txt { background: #e7f0ff; color: #2764ae; }
+.detalhes-documento { min-width: 0; }
 .cartao-documento strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .88rem; }
 .status-documento { display: inline-flex; margin-top: 7px; padding: 3px 7px; border-radius: 99px; background: #ecebe8; color: #5f5c58; font-size: .72rem; font-weight: 700; }
 .status-documento.ready { background: #e7f4eb; color: #267244; }
