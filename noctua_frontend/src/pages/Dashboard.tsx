@@ -5,6 +5,8 @@ import { ListaDocumentos } from '../components/ListaDocumentos'
 import { PainelChat } from '../components/PainelChat'
 import { PainelEnvio } from '../components/PainelEnvio'
 import { Documento, Estado, Fonte, ModoDashboard } from '../tipos'
+import '../styles/Dashboard.css'
+import '../styles/Header.css'
 
 type PropsDashboard = {
   modo: ModoDashboard
