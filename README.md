@@ -33,9 +33,9 @@ Protótipo de agente de base de conhecimento multi-tenant.
 
 ## Escopo atual
 
-As sprints 0, 1 e 2 estão concluídas. A Sprint 3 adiciona o chat RAG: a API recupera trechos semanticamente relacionados em português, inglês e alemão, limita o contexto por tokens e gera uma resposta fundamentada por LLM com fontes.
+As Sprints 0 a 6 estão concluídas. O Noctua possui upload e indexação de PDF/TXT, busca vetorial multilíngue, chat RAG com fontes, autenticação JWT, isolamento por organização e interface web em React.
 
-O desenvolvimento usa uma organização padrão configurada somente no backend. A autenticação e a identificação de organizações reais continuam pendentes; por isso o frontend não envia nem escolhe `organization_id`.
+O frontend nunca recebe `OPENAI_API_KEY` nem escolhe `organization_id`. O backend obtém a organização pelo usuário autenticado e restringe documentos, chunks, busca e chat a esse tenant.
 
 ### Configuração da busca
 
@@ -63,6 +63,35 @@ Bearer SEU_ACCESS_TOKEN
 ```
 
 Documentos, busca semântica e chat exigem esse token. A organização é obtida do usuário autenticado no backend; não existe campo `organization_id` aceito pelo frontend.
+
+## Interface web
+
+Abra `http://localhost:5173` para acessar a aplicação.
+
+- Login e cadastro compartilham a mesma tela de acesso.
+- O dashboard permite enviar PDF/TXT, listar documentos da organização e perguntar ao chat RAG.
+- Respostas do chat exibem as fontes retornadas pela API.
+- O token é mantido em `sessionStorage` e enviado como Bearer token.
+
+Para desenvolvimento, o container do frontend monta `noctua_frontend/` como volume e atualiza o navegador automaticamente após alterações em `src/`.
+
+## Qualidade e robustez
+
+- Senhas usam `scrypt` com salt aleatório; nunca são persistidas em texto puro.
+- A OpenAI recebe retry com backoff apenas em falhas transitórias.
+- Chave inválida, requisição inválida e saldo esgotado não recebem retry.
+- Os testes do backend são executados com:
+
+  ```bash
+  cd noctua_backend
+  uv run pytest
+  ```
+
+## Próximas evoluções
+
+- Processamento assíncrono com workers e Redis.
+- Memória de conversa.
+- Visualização ou download protegido dos arquivos originais pelas fontes do chat.
 
 Exemplo de corpo para `POST /chat`:
 
