@@ -22,11 +22,11 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 - Persistência criada pela migration Alembic `20260920_01`.
 - Arquivos são mantidos no volume Docker `documentos_data`.
 - Upload de PDF limitado a 5 páginas e de arquivos a 10 MB.
-- A autenticação ainda não existe; por isso a API não recebe `organization_id` do frontend.
+- Esta sprint foi concluída antes da autenticação; atualmente os documentos pertencem à organização do usuário autenticado.
 
 ## Sprint 2 - Busca vetorial
 
-- Organização padrão definida exclusivamente no backend para desenvolvimento.
+- A organização padrão foi usada somente na etapa inicial de desenvolvimento; atualmente o tenant é obtido do JWT e do usuário persistido.
 - Extração, chunking com sobreposição, embeddings OpenAI e persistência em pgvector implementados.
 - Reindexação de documentos já enviados disponível em `POST /documents/{id}/reindex`.
 - Retrieval sem LLM validado com pgvector e filtro pela organização do backend.
