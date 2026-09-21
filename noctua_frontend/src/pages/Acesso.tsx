@@ -2,6 +2,7 @@ import { FormEvent } from 'react'
 
 import { Aviso } from '../components/Aviso'
 import { Estado } from '../tipos'
+import '../styles/Login.css'
 
 type PropsAcesso = {
   cadastro: boolean

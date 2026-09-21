@@ -1,4 +1,5 @@
 import { Documento } from '../tipos'
+import '../styles/DocumentCard.css'
 
 type PropsListaDocumentos = {
   documentos: Documento[]

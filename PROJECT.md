@@ -73,3 +73,4 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 - O painel central alterna entre envio e chat, incluindo as ilustrações correspondentes em `public/imagens`.
 - O frontend é organizado em páginas, componentes reutilizáveis, tipos compartilhados e serviço de comunicação com a API.
 - Cartões de documentos preservam nomes longos dentro do contorno e distinguem arquivos TXT em azul.
+- Estilos do frontend são separados por escopo em `src/styles`, com regras globais, variáveis, login, dashboard, cabeçalho e cartões de documentos.
