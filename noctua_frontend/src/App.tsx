@@ -10,6 +10,10 @@ function mensagemErro(valor: unknown, fallback: string) {
   return valor instanceof Error ? valor.message : fallback
 }
 
+function rotuloStatus(status: string) {
+  return ({ pending: 'Pendente', processing: 'Processando', ready: 'Pronto', failed: 'Falhou' } as Record<string, string>)[status] ?? status
+}
+
 function obterRota(caminho: string): Rota {
   return caminho === '/cadastro' || caminho === '/dashboard' ? caminho : '/login'
 }
@@ -39,6 +43,18 @@ export default function App() {
     sessionStorage.removeItem('noctua_token')
     setAutenticado(false)
     navegar('/login', true)
+  }
+
+  function selecionarEnvio() {
+    setModo('enviar')
+    setEstado('neutro')
+    setResposta('')
+    setFontes([])
+  }
+
+  function selecionarChat() {
+    setModo('perguntar')
+    setEstado('neutro')
   }
 
   function cabecalhos() {
@@ -87,7 +103,11 @@ export default function App() {
       ? { nome_organizacao: formulario.get('organizacao'), email: formulario.get('email'), senha: formulario.get('senha') }
       : { email: formulario.get('email'), senha: formulario.get('senha') }
     try {
-      const respostaHttp = await fetch(`${api}${cadastro ? '/auth/register' : '/auth/login'}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) })
+      const respostaHttp = await fetch(`${api}${cadastro ? '/auth/register' : '/auth/login'}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(corpo),
+      })
       const respostaApi = await lerResposta(respostaHttp) as { access_token: string }
       sessionStorage.setItem('noctua_token', respostaApi.access_token)
       setMensagem('Acesso realizado com sucesso.')
@@ -101,31 +121,256 @@ export default function App() {
 
   async function enviarArquivo() {
     if (!arquivo) return
-    setEstado('carregando'); setMensagem(`Enviando ${arquivo.name}…`)
-    const formulario = new FormData(); formulario.append('arquivo', arquivo)
+    setEstado('carregando')
+    setMensagem(`Enviando ${arquivo.name}…`)
+    const formulario = new FormData()
+    formulario.append('arquivo', arquivo)
     try {
-      await lerResposta(await fetch(`${api}/documents`, { method: 'POST', headers: cabecalhos(), body: formulario }))
-      setArquivo(null); setEstado('sucesso'); setMensagem('Documento enviado e indexado com sucesso.')
+      await lerResposta(await fetch(`${api}/documents`, {
+        method: 'POST',
+        headers: cabecalhos(),
+        body: formulario,
+      }))
+      setArquivo(null)
+      setEstado('sucesso')
+      setMensagem('Documento enviado e indexado com sucesso.')
       await carregarDocumentos()
     } catch (erro) {
-      setEstado('erro'); setMensagem(mensagemErro(erro, 'Falha no envio do documento.'))
+      setEstado('erro')
+      setMensagem(mensagemErro(erro, 'Falha no envio do documento.'))
     }
   }
 
   async function perguntar() {
     if (!pergunta.trim()) return
-    setEstado('carregando'); setMensagem('Consultando sua base de conhecimento…'); setResposta(''); setFontes([])
+    setEstado('carregando')
+    setMensagem('Consultando sua base de conhecimento…')
+    setResposta('')
+    setFontes([])
     try {
-      const respostaApi = await lerResposta(await fetch(`${api}/chat`, { method: 'POST', headers: { ...cabecalhos(), 'Content-Type': 'application/json' }, body: JSON.stringify({ question: pergunta.trim() }) })) as { answer: string; sources: Fonte[] }
-      setResposta(respostaApi.answer); setFontes(respostaApi.sources); setEstado('sucesso'); setMensagem('Resposta encontrada.')
+      const respostaHttp = await fetch(`${api}/chat`, {
+        method: 'POST',
+        headers: { ...cabecalhos(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: pergunta.trim() }),
+      })
+      const respostaApi = await lerResposta(respostaHttp) as { answer: string; sources: Fonte[] }
+      setResposta(respostaApi.answer)
+      setFontes(respostaApi.sources)
+      setEstado('sucesso')
+      setMensagem('Resposta encontrada.')
     } catch (erro) {
-      setEstado('erro'); setMensagem(mensagemErro(erro, 'Falha ao consultar a base.'))
+      setEstado('erro')
+      setMensagem(mensagemErro(erro, 'Falha ao consultar a base.'))
     }
   }
 
   const aviso = estado !== 'neutro' && <p className={`aviso ${estado}`} role={estado === 'erro' ? 'alert' : 'status'}>{mensagem}</p>
+  const imagemModo = modo === 'enviar'
+    ? { caminho: '/imagens/coruja_livro_insere.jpg', descricao: 'Coruja Noctua organizando livros' }
+    : { caminho: '/imagens/coruja_lupa_busca.jpg', descricao: 'Coruja Noctua pesquisando documentos' }
 
-  if (autenticado) return <main className="dashboard"><header><div className="logo">◉ NOCTUA</div><button className="sair" onClick={encerrarSessao}>Sair</button></header><div className="cabecalho-dashboard"><p className="etiqueta">BASE DE CONHECIMENTO</p><h1>Seu conhecimento, organizado.</h1></div><nav className="acoes"><button className={modo === 'enviar' ? 'ativo' : ''} onClick={() => { setModo('enviar'); setEstado('neutro') }}>↑ Enviar documento</button><button className={modo === 'perguntar' ? 'ativo' : ''} onClick={() => { setModo('perguntar'); setEstado('neutro') }}>◌ Perguntar</button></nav><section className="painel-dashboard">{modo === 'enviar' ? <><h2>Envie um documento</h2><p>Formatos aceitos: PDF ou TXT.</p><input className="arquivo" type="file" accept=".pdf,.txt" onChange={evento => setArquivo(evento.target.files?.[0] ?? null)} /><button className="principal" disabled={!arquivo || estado === 'carregando'} onClick={enviarArquivo}>{estado === 'carregando' ? 'Enviando…' : 'Enviar arquivo'}</button></> : <><h2>Faça uma pergunta</h2><div className="campo-chat"><input value={pergunta} onChange={evento => setPergunta(evento.target.value)} onKeyDown={evento => { if (evento.key === 'Enter') void perguntar() }} placeholder="Pergunte algo sobre seus documentos" /><button aria-label="Enviar pergunta" onClick={perguntar} disabled={estado === 'carregando' || !pergunta.trim()}>↑</button></div>{resposta && <article className="resposta"><p>{resposta}</p>{fontes.length > 0 && <div><strong>Fontes</strong><ul>{fontes.map((fonte, indice) => <li key={`${fonte.document}-${fonte.page}-${indice}`}>{fonte.document}{fonte.page ? ` · página ${fonte.page}` : ''}</li>)}</ul></div>}</article>}</>}</section>{aviso}<section className="documentos"><div className="titulo-secao"><h2>Documentos da organização</h2><button className="atualizar" onClick={() => void carregarDocumentos()} disabled={carregandoDocumentos}>Atualizar</button></div>{carregandoDocumentos ? <p className="carregando">Carregando documentos…</p> : documentos.length ? <ul className="lista-documentos">{documentos.map(documento => <li key={documento.id}><span>{documento.nome_arquivo}</span><small>{documento.status}</small></li>)}</ul> : <p>Nenhum documento enviado.</p>}</section></main>
+  if (autenticado) {
+    return (
+      <main className="dashboard">
+        <header className="cabecalho-principal">
+          <div className="marca-dashboard">
+            <img src="/imagens/favicon.ico" alt="" />
+            <span>NOCTUA</span>
+          </div>
+          <button className="sair" onClick={encerrarSessao}>Sair</button>
+        </header>
 
-  return <main className="pagina"><section className="marca"><div className="logo">◉ NOCTUA</div><div className="texto-marca"><p>BASE DE CONHECIMENTO INTELIGENTE</p><h1>Conhecimento seguro,<br />perto de você.</h1><span>Centralize documentos e encontre respostas fundamentadas nas fontes da sua organização.</span></div><b>+</b></section><section className="acesso"><div className="cartao"><p className="etiqueta">PORTAL NOCTUA</p><h2>{cadastro ? 'Crie sua conta' : 'Boas-vindas de volta'}</h2><div className="abas"><button type="button" className={!cadastro ? 'ativo' : ''} onClick={() => { navegar('/login'); setEstado('neutro') }}>Entrar</button><button type="button" className={cadastro ? 'ativo' : ''} onClick={() => { navegar('/cadastro'); setEstado('neutro') }}>Criar conta</button></div><form onSubmit={entrar}>{cadastro && <label>Organização<input name="organizacao" required placeholder="Ex.: Noctua Tecnologia" /></label>}<label>E-mail<input name="email" type="email" required placeholder="voce@organizacao.com" /></label><label>Senha<span className="campo-senha"><input name="senha" type={senhaVisivel ? 'text' : 'password'} minLength={8} required placeholder="Mínimo de 8 caracteres" /><button type="button" aria-label={senhaVisivel ? 'Ocultar senha' : 'Mostrar senha'} aria-pressed={senhaVisivel} onClick={() => setSenhaVisivel(!senhaVisivel)}>{senhaVisivel ? 'Ocultar' : 'Mostrar'}</button></span></label><button className="principal" disabled={estado === 'carregando'}>{estado === 'carregando' ? 'Aguarde…' : cadastro ? 'Criar conta' : 'Entrar no Noctua'}</button></form>{aviso}</div></section></main>
+        <section className="conteudo-dashboard">
+          <div className="titulo-dashboard">
+            <p className="etiqueta">BASE DE CONHECIMENTO</p>
+            <h1>Seu conhecimento, organizado.</h1>
+          </div>
+
+          <div className="area-central">
+            <img className="ilustracao-dashboard" src={imagemModo.caminho} alt={imagemModo.descricao} />
+            <nav className="seletor-modo" aria-label="Ação do dashboard">
+              <button className={modo === 'enviar' ? 'ativo' : ''} onClick={selecionarEnvio}>
+                Enviar documento
+              </button>
+              <button className={modo === 'perguntar' ? 'ativo' : ''} onClick={selecionarChat}>
+                Chat
+              </button>
+            </nav>
+
+            <section className="painel-central">
+              {modo === 'enviar' ? (
+                <>
+                  <div>
+                    <h2>Envie um documento</h2>
+                    <p>Formatos aceitos: PDF ou TXT</p>
+                  </div>
+                  <div className="linha-acao">
+                    <label className="seletor-arquivo" htmlFor="arquivo">
+                      {arquivo?.name ?? 'Escolher arquivo'}
+                    </label>
+                    <input
+                      id="arquivo"
+                      type="file"
+                      accept=".pdf,.txt"
+                      onChange={evento => setArquivo(evento.target.files?.[0] ?? null)}
+                    />
+                    <button
+                      className="botao-seta"
+                      aria-label="Enviar arquivo"
+                      disabled={!arquivo || estado === 'carregando'}
+                      onClick={enviarArquivo}
+                    >
+                      →
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2>Faça uma pergunta</h2>
+                  <div className="linha-acao">
+                    <input
+                      value={pergunta}
+                      onChange={evento => setPergunta(evento.target.value)}
+                      onKeyDown={evento => {
+                        if (evento.key === 'Enter') void perguntar()
+                      }}
+                      placeholder="Pergunte algo sobre seus documentos"
+                    />
+                    <button
+                      className="botao-seta"
+                      aria-label="Enviar pergunta"
+                      onClick={perguntar}
+                      disabled={estado === 'carregando' || !pergunta.trim()}
+                    >
+                      →
+                    </button>
+                  </div>
+                </>
+              )}
+            </section>
+
+            {aviso}
+            {resposta && (
+              <article className="resposta">
+                <p>{resposta}</p>
+                {fontes.length > 0 && (
+                  <div>
+                    <strong>Fontes</strong>
+                    <ul>
+                      {fontes.map((fonte, indice) => (
+                        <li key={`${fonte.document}-${fonte.page}-${indice}`}>
+                          {fonte.document}{fonte.page ? ` · página ${fonte.page}` : ''}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </article>
+            )}
+          </div>
+
+          <section className="documentos-organizacao">
+            <div className="cabecalho-documentos">
+              <h2>Documentos da organização</h2>
+              <span>{documentos.length} {documentos.length === 1 ? 'arquivo' : 'arquivos'}</span>
+            </div>
+            {carregandoDocumentos ? (
+              <p className="carregando carregamento-documentos">Carregando documentos…</p>
+            ) : documentos.length > 0 ? (
+              <ul className="grade-documentos">
+                {documentos.map(documento => (
+                  <li key={documento.id} className="cartao-documento">
+                    <div className="icone-arquivo">
+                      {documento.nome_arquivo.split('.').pop()?.toUpperCase() ?? 'ARQ'}
+                    </div>
+                    <div>
+                      <strong title={documento.nome_arquivo}>{documento.nome_arquivo}</strong>
+                      <span className={`status-documento ${documento.status}`}>
+                        {rotuloStatus(documento.status)}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="sem-documentos">Nenhum documento enviado ainda.</p>
+            )}
+          </section>
+        </section>
+      </main>
+    )
+  }
+
+  return (
+    <main className="pagina">
+      <section className="marca">
+        <div className="logo">◉ NOCTUA</div>
+        <div className="texto-marca">
+          <p>BASE DE CONHECIMENTO INTELIGENTE</p>
+          <h1>Conhecimento seguro,<br />rápido e fácil.</h1>
+          <span>Centralize documentos e encontre respostas fundamentadas nas fontes da sua organização.</span>
+        </div>
+        <b>+</b>
+      </section>
+
+      <section className="acesso">
+        <div className="cartao">
+          <p className="etiqueta">AGENTE NOCTUA</p>
+          <h2>{cadastro ? 'Crie sua conta' : 'Boas-vindas de volta'}</h2>
+          <div className="abas">
+            <button
+              type="button"
+              className={!cadastro ? 'ativo' : ''}
+              onClick={() => { navegar('/login'); setEstado('neutro') }}
+            >
+              Entrar
+            </button>
+            <button
+              type="button"
+              className={cadastro ? 'ativo' : ''}
+              onClick={() => { navegar('/cadastro'); setEstado('neutro') }}
+            >
+              Criar conta
+            </button>
+          </div>
+          <form onSubmit={entrar}>
+            {cadastro && (
+              <label>
+                Organização
+                <input name="organizacao" required placeholder="Ex.: Noctua Tecnologia" />
+              </label>
+            )}
+            <label>
+              E-mail
+              <input name="email" type="email" required placeholder="voce@organizacao.com" />
+            </label>
+            <label>
+              Senha
+              <span className="campo-senha">
+                <input
+                  name="senha"
+                  type={senhaVisivel ? 'text' : 'password'}
+                  minLength={8}
+                  required
+                  placeholder="Mínimo de 8 caracteres"
+                />
+                <button
+                  type="button"
+                  aria-label={senhaVisivel ? 'Ocultar senha' : 'Mostrar senha'}
+                  aria-pressed={senhaVisivel}
+                  onClick={() => setSenhaVisivel(!senhaVisivel)}
+                >
+                  {senhaVisivel ? 'Ocultar' : 'Mostrar'}
+                </button>
+              </span>
+            </label>
+            <button className="principal" disabled={estado === 'carregando'}>
+              {estado === 'carregando' ? 'Aguarde…' : cadastro ? 'Criar conta' : 'Entrar no Noctua'}
+            </button>
+          </form>
+          {aviso}
+        </div>
+      </section>
+    </main>
+  )
 }

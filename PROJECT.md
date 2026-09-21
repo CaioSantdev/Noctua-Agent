@@ -70,3 +70,4 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 - As telas usam as URLs `/login`, `/cadastro` e `/dashboard`; o dashboard é protegido pela presença do JWT local.
 - O dashboard usa o JWT mantido em `sessionStorage` como Bearer token para listar e enviar documentos e para consultar o chat.
 - Respostas do chat apresentam suas fontes; respostas 401 encerram a sessão local.
+- O painel central alterna entre envio e chat, incluindo as ilustrações correspondentes em `public/imagens`.
