@@ -45,8 +45,17 @@ body {
 }
 
 .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-weight: 700;
     letter-spacing: 0.18em;
+}
+
+.logo img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
 }
 
 .marca p,
