@@ -68,7 +68,7 @@ services:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-knowledge_agent}:${POSTGRES_PASSWORD:-change-me-locally}@postgres:5432/${POSTGRES_DB:-knowledge_agent}
       DIRETORIO_ARQUIVOS: /app/arquivos
       REDIS_URL: redis://redis:6379/0
-    command: ["uv", "run", "--no-sync", "celery", "-A", "app.infrastructure.celery.aplicacao_celery", "worker", "--loglevel=INFO"]
+    command: ["uv", "run", "--no-sync", "celery", "-A", "app.infrastructure.celery.aplicacao_celery", "worker", "--loglevel=INFO", "--concurrency=1"]
     depends_on:
       postgres:
         condition: service_healthy
