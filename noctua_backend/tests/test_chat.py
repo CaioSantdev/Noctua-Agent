@@ -88,7 +88,18 @@ def test_chat_respeita_orcamento_e_constroi_fontes_dos_chunks(monkeypatch) -> No
     assert resposta.resposta == "O Noctua utiliza PostgreSQL."
     assert resposta.fontes[0].documento == "arquitetura.pdf"
     assert resposta.fontes[0].pagina == 3
+    assert resposta.fontes[0].trecho == "PostgreSQL é o banco de dados utilizado pelo Noctua."
     obter_configuracoes.cache_clear()
+
+
+def test_chat_limita_previa_da_fonte() -> None:
+    """Evita que uma citação extensa ocupe toda a resposta do chat."""
+    conteudo = "conteúdo " * 100
+
+    previa = ServicoChat._criar_previa(conteudo)
+
+    assert len(previa) == 220
+    assert previa.endswith("…")
 
 
 def test_servico_llm_usa_responses_sem_armazenar_a_resposta(monkeypatch) -> None:

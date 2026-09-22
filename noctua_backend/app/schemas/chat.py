@@ -12,6 +12,7 @@ class FonteChat(BaseModel):
 
     document: str
     page: int | None
+    excerpt: str = Field(min_length=1, max_length=220)
 
 
 class RespostaChat(BaseModel):
