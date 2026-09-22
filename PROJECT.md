@@ -60,6 +60,13 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 - Rotas de busca e chat retornam respostas HTTP seguras e específicas para falhas da IA.
 - Testes com mocks validam retry de conexão e ausência de retry para saldo esgotado.
 
+## Preparação de deploy
+
+- A aplicação pode usar PostgreSQL e Storage privados do Supabase por variáveis
+  de ambiente, preservando o armazenamento local como padrão de desenvolvimento.
+- O guia de deploy orienta o uso do Session pooler do Supabase para ambientes
+  IPv4, como Docker local e provedores de nuvem.
+
 ## Ainda não implementado
 
 - Finalizar a validação integrada do worker Celery com Redis e PostgreSQL em Docker.

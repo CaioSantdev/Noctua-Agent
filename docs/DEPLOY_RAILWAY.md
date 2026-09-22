@@ -16,10 +16,14 @@ Supabase (PostgreSQL + pgvector e Storage privado)
 
 1. Crie um projeto gratuito.
 2. Em **Storage**, crie um bucket privado chamado `documentos`.
-3. Em **Settings > API**, copie `Project URL` e a chave `service_role`.
-4. Em **Connect**, copie a URL de conexão PostgreSQL.
+3. Em **Project Settings > API Keys**, copie `Project URL` e a **Secret key** que
+   começa com `sb_secret_`. A chave legada `service_role` também é compatível,
+   mas a Secret key é a opção atual recomendada pelo Supabase.
+4. Em **Connect**, copie a URL PostgreSQL do **Session pooler**. A conexão
+   **Direct** requer IPv6 e pode falhar em ambientes que possuem somente IPv4,
+   como o Docker local.
 
-Não use a chave `service_role` no Vercel ou no frontend. O backend executa as migrations
+Não use a chave secreta no Vercel ou no frontend. O backend executa as migrations
 automaticamente e habilita a extensão `vector` em bancos novos.
 
 ## 2. Criar os serviços na Railway
