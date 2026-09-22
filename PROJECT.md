@@ -2,7 +2,8 @@
 
 ## Estado atual
 
-Sprint 6 concluída no frontend.
+Sprint 6 concluída no frontend. Sprint 7 em andamento: processamento assíncrono de
+documentos com Redis e Celery.
 
 Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, backend e PostgreSQL com pgvector habilitado, e os ambientes versionados por `uv` (`noctua_backend/uv.lock`) e npm (`noctua_frontend/package-lock.json`).
 
@@ -59,9 +60,46 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 - Rotas de busca e chat retornam respostas HTTP seguras e específicas para falhas da IA.
 - Testes com mocks validam retry de conexão e ausência de retry para saldo esgotado.
 
+## Preparação de deploy
+
+- A aplicação pode usar PostgreSQL e Storage privados do Supabase por variáveis
+  de ambiente, preservando o armazenamento local como padrão de desenvolvimento.
+- O guia de deploy orienta o uso do Session pooler do Supabase para ambientes
+  IPv4, como Docker local e provedores de nuvem.
+
 ## Ainda não implementado
 
-- Processamento assíncrono com workers e Redis.
+- Finalizar a validação integrada do worker Celery com Redis e PostgreSQL em Docker.
+- Deploy em nuvem da aplicação e documentação da infraestrutura escolhida.
+
+## Sprint 7 - Processamento assíncrono
+
+- Criada a branch `feature/sprint-7-processamento-assincrono`.
+- Redis foi incluído como broker e backend de resultados do Celery.
+- O Compose agora declara os serviços `redis` e `worker`, além de um volume persistente
+  para os dados do Redis.
+- Upload e reindexação persistem o documento como `pending` e enfileiram o identificador;
+  a API não aguarda extração, chunking ou embeddings.
+- O worker processa o arquivo compartilhado, transita por `processing` e conclui em
+  `ready` ou `failed`.
+- Testes automatizados simulam o worker e validam as transições
+  `pending → processing → ready` e `pending → processing → failed`.
+- O dashboard consulta novamente a lista de documentos a cada três segundos apenas
+  enquanto houver itens `pending` ou `processing`; a atualização não substitui a lista
+  por uma tela de carregamento.
+- API e worker usam o usuário sem privilégios `noctua`; o serviço de inicialização
+  `permissoes_arquivos` prepara a posse do volume persistente antes dos dois serviços.
+
+## Deploy - Railway, Supabase e Vercel
+
+- A branch `feature/deploy-railway` prepara o deploy de demonstração.
+- Supabase Storage substitui o compartilhamento de diretório local entre API e worker
+  em produção; a chave `service_role` permanece exclusiva do backend.
+- URLs PostgreSQL genéricas são normalizadas para o driver `psycopg` usado pela API.
+- A migration de trechos habilita `vector` antes de criar a coluna de embeddings em
+  bancos novos.
+- CORS é configurável por `ORIGENS_CORS`, e o frontend possui rewrite Vercel para as
+  rotas SPA.
 
 ## Sprint 6 - Interface web
 

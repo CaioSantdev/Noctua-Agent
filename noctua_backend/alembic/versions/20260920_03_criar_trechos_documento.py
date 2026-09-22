@@ -12,6 +12,7 @@ depends_on = None
 
 def upgrade() -> None:
     """Cria a tabela com embedding compatível com pgvector."""
+    op.execute("CREATE EXTENSION IF NOT EXISTS vector")
     op.create_table(
         "trechos_documento",
         sa.Column("id", sa.Uuid(), nullable=False),

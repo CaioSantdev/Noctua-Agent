@@ -6,7 +6,10 @@ import app.models.documento  # noqa: F401
 
 config = context.config
 
-config.set_main_option("sqlalchemy.url", obter_configuracoes().url_banco)
+# O ConfigParser usado pelo Alembic reserva "%" para interpolação. URLs podem
+# conter sequências codificadas, como "%24" para uma senha com cifrão.
+url_banco_alembic = obter_configuracoes().url_banco.replace("%", "%%")
+config.set_main_option("sqlalchemy.url", url_banco_alembic)
 metadados_alvo = Base.metadata
 
 

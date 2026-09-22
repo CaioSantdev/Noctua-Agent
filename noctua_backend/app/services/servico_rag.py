@@ -1,6 +1,6 @@
 import uuid
 from dataclasses import dataclass
-from pathlib import Path
+from io import BytesIO
 
 from pypdf import PdfReader
 
@@ -28,7 +28,7 @@ class ServicoRag:
         self.servico_chunk = ServicoChunk()
         self.servico_embedding = ServicoEmbedding()
 
-    def indexar_documento(self, documento: Documento) -> None:
+    def indexar_documento(self, documento: Documento, conteudo_arquivo: bytes | None = None) -> None:
         """Gera chunks e embeddings para um documento com texto extraído."""
         if not documento.texto_extraido:
             return
@@ -42,7 +42,7 @@ class ServicoRag:
                 pagina=pagina,
                 embedding=self.servico_embedding.gerar(conteudo),
             )
-            for pagina, texto in self._obter_paginas(documento)
+            for pagina, texto in self._obter_paginas(documento, conteudo_arquivo)
             for conteudo in self.servico_chunk.dividir(texto)
         ]
         if trechos:
@@ -62,12 +62,17 @@ class ServicoRag:
             if 1 - distancia >= configuracoes.limiar_similaridade
         ]
 
-    def _obter_paginas(self, documento: Documento) -> list[tuple[int | None, str]]:
+    def _obter_paginas(
+        self, documento: Documento, conteudo_arquivo: bytes | None
+    ) -> list[tuple[int | None, str]]:
         """Recupera texto por página para preservar a fonte dos chunks."""
         if documento.extensao == ".txt":
             return [(None, documento.texto_extraido or "")]
 
-        leitor = PdfReader(Path(documento.caminho_arquivo))
+        if conteudo_arquivo is None:
+            raise ValueError("O conteúdo do PDF é necessário para indexação.")
+
+        leitor = PdfReader(BytesIO(conteudo_arquivo))
         return [
             (numero, pagina.extract_text() or "")
             for numero, pagina in enumerate(leitor.pages, start=1)
