@@ -6,6 +6,10 @@ from pypdf import PdfReader
 
 from app.core.config import obter_configuracoes
 from app.infrastructure.armazenamento import ArmazenamentoLocal
+from app.infrastructure.fila_tarefas import (
+    ErroEnfileiramentoDocumento,
+    enfileirar_processamento_documento,
+)
 from app.models.documento import Documento, StatusDocumento
 from app.repositories.repositorio_documento import RepositorioDocumento
 from app.repositories.repositorio_trecho import RepositorioTrecho
@@ -33,7 +37,7 @@ class ServicoDocumento:
         self.servico_rag = ServicoRag(RepositorioTrecho(repositorio.sessao))
 
     def criar(self, nome_arquivo: str, conteudo: bytes) -> Documento:
-        """Valida, armazena, extrai e persiste um documento síncrono."""
+        """Valida, armazena e envia um documento para processamento assíncrono."""
         extensao = self._validar_arquivo(nome_arquivo, conteudo)
         identificador = uuid.uuid4()
         nome_armazenado = f"{identificador}{extensao}"
@@ -45,7 +49,7 @@ class ServicoDocumento:
             extensao=extensao,
             tamanho_bytes=len(conteudo),
             caminho_arquivo=caminho,
-            status=StatusDocumento.PROCESSANDO,
+            status=StatusDocumento.PENDENTE,
         )
 
         try:
@@ -55,14 +59,12 @@ class ServicoDocumento:
             raise
 
         try:
-            documento.texto_extraido = self._extrair_texto(extensao, conteudo)
-            self.servico_rag.indexar_documento(documento)
-            documento.status = StatusDocumento.PRONTO
-            return self.repositorio.atualizar(documento)
-        except Exception as erro:
+            enfileirar_processamento_documento(documento.id)
+        except ErroEnfileiramentoDocumento:
             documento.status = StatusDocumento.FALHOU
             self.repositorio.atualizar(documento)
-            raise ErroProcessamentoDocumento("Não foi possível extrair o conteúdo do arquivo.") from erro
+            raise
+        return documento
 
     def listar(self) -> list[Documento]:
         """Lista todos os documentos persistidos."""
@@ -75,12 +77,37 @@ class ServicoDocumento:
         )
 
     def reindexar(self, identificador: uuid.UUID) -> Documento | None:
-        """Gera novamente os chunks e embeddings de um documento existente."""
+        """Envia a reindexação de um documento existente para o worker."""
         documento = self.obter(identificador)
         if documento is None:
             return None
-        self.servico_rag.indexar_documento(documento)
+        documento.status = StatusDocumento.PENDENTE
+        documento = self.repositorio.atualizar(documento)
+        try:
+            enfileirar_processamento_documento(documento.id)
+        except ErroEnfileiramentoDocumento:
+            documento.status = StatusDocumento.FALHOU
+            self.repositorio.atualizar(documento)
+            raise
         return documento
+
+    def processar(self, documento: Documento) -> Documento:
+        """Extrai texto, gera embeddings e atualiza o estado do documento."""
+        documento.status = StatusDocumento.PROCESSANDO
+        self.repositorio.atualizar(documento)
+
+        try:
+            conteudo = self.armazenamento.ler(documento.caminho_arquivo)
+            documento.texto_extraido = self._extrair_texto(documento.extensao, conteudo)
+            self.servico_rag.indexar_documento(documento)
+            documento.status = StatusDocumento.PRONTO
+            return self.repositorio.atualizar(documento)
+        except Exception as erro:
+            documento.status = StatusDocumento.FALHOU
+            self.repositorio.atualizar(documento)
+            raise ErroProcessamentoDocumento(
+                "Não foi possível extrair ou indexar o conteúdo do arquivo."
+            ) from erro
 
     def _validar_arquivo(self, nome_arquivo: str, conteudo: bytes) -> str:
         extensao = Path(nome_arquivo).suffix.lower()

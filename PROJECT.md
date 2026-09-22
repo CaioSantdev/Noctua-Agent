@@ -2,7 +2,8 @@
 
 ## Estado atual
 
-Sprint 6 concluída no frontend.
+Sprint 6 concluída no frontend. Sprint 7 em andamento: processamento assíncrono de
+documentos com Redis e Celery.
 
 Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, backend e PostgreSQL com pgvector habilitado, e os ambientes versionados por `uv` (`noctua_backend/uv.lock`) e npm (`noctua_frontend/package-lock.json`).
 
@@ -61,7 +62,26 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 
 ## Ainda não implementado
 
-- Processamento assíncrono com workers e Redis.
+- Finalizar a validação integrada do worker Celery com Redis e PostgreSQL em Docker.
+- Deploy em nuvem da aplicação e documentação da infraestrutura escolhida.
+
+## Sprint 7 - Processamento assíncrono
+
+- Criada a branch `feature/sprint-7-processamento-assincrono`.
+- Redis foi incluído como broker e backend de resultados do Celery.
+- O Compose agora declara os serviços `redis` e `worker`, além de um volume persistente
+  para os dados do Redis.
+- Upload e reindexação persistem o documento como `pending` e enfileiram o identificador;
+  a API não aguarda extração, chunking ou embeddings.
+- O worker processa o arquivo compartilhado, transita por `processing` e conclui em
+  `ready` ou `failed`.
+- Testes automatizados simulam o worker e validam as transições
+  `pending → processing → ready` e `pending → processing → failed`.
+- O dashboard consulta novamente a lista de documentos a cada três segundos apenas
+  enquanto houver itens `pending` ou `processing`; a atualização não substitui a lista
+  por uma tela de carregamento.
+- API e worker usam o usuário sem privilégios `noctua`; o serviço de inicialização
+  `permissoes_arquivos` prepara a posse do volume persistente antes dos dois serviços.
 
 ## Sprint 6 - Interface web
 

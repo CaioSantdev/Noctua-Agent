@@ -95,6 +95,11 @@
   color: #267244;
 }
 
+.status-documento.pending {
+  background: #ecebe8;
+  color: #5f5c58;
+}
+
 .status-documento.failed {
   background: #fce9e7;
   color: var(--vermelho-escuro);

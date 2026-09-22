@@ -17,3 +17,7 @@ class ArmazenamentoLocal:
     def remover(self, caminho: str) -> None:
         """Remove um arquivo salvo quando a persistência falha."""
         Path(caminho).unlink(missing_ok=True)
+
+    def ler(self, caminho: str) -> bytes:
+        """Lê um arquivo previamente armazenado."""
+        return Path(caminho).read_bytes()
