@@ -39,5 +39,8 @@ async def conversar(
 
     return RespostaChat(
         answer=resultado.resposta,
-        sources=[FonteChat(document=fonte.documento, page=fonte.pagina) for fonte in resultado.fontes],
+        sources=[
+            FonteChat(document=fonte.documento, page=fonte.pagina, excerpt=fonte.trecho)
+            for fonte in resultado.fontes
+        ],
     )

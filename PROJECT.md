@@ -100,6 +100,8 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
   bancos novos.
 - CORS é configurável por `ORIGENS_CORS`, e o frontend possui rewrite Vercel para as
   rotas SPA.
+- As fontes do chat informam documento, página e uma prévia limitada do chunk enviado
+  como contexto para a LLM; a prévia possui até 220 caracteres.
 
 ## Sprint 6 - Interface web
 

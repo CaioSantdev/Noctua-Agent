@@ -168,6 +168,18 @@
   color: var(--texto-suave);
 }
 
+.resposta li + li {
+  margin-top: 12px;
+}
+
+.trecho-fonte {
+  display: block;
+  margin-top: 4px;
+  color: var(--texto-suave);
+  font-size: .88rem;
+  font-style: italic;
+}
+
 @media (max-width: 760px) {
   .conteudo-dashboard {
     padding-top: 28px;

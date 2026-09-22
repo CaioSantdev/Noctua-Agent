@@ -109,7 +109,8 @@ export function Dashboard({
                   <ul>
                     {fontes.map((fonte, indice) => (
                       <li key={`${fonte.document}-${fonte.page}-${indice}`}>
-                        {fonte.document}{fonte.page ? ` · página ${fonte.page}` : ''}
+                        <strong>{fonte.document}{fonte.page ? ` - Página ${fonte.page}` : ''}</strong>
+                        <span className="trecho-fonte">“{fonte.excerpt}”</span>
                       </li>
                     ))}
                   </ul>

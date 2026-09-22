@@ -7,6 +7,7 @@ export type Documento = {
 export type Fonte = {
   document: string
   page: number | null
+  excerpt: string
 }
 
 export type Estado = 'neutro' | 'carregando' | 'sucesso' | 'erro'

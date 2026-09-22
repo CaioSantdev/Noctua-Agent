@@ -11,14 +11,16 @@ from app.services.servico_rag import ResultadoBusca, ServicoRag
 RESPOSTA_SEM_CONTEXTO = (
     "Não encontrei informações suficientes nos documentos disponíveis para responder essa pergunta."
 )
+LIMITE_CARACTERES_PREVIA_FONTE = 220
 
 
 @dataclass(frozen=True)
 class FonteResposta:
-    """Metadados de uma fonte efetivamente recuperada."""
+    """Fonte recuperada e incluída no contexto enviado à LLM."""
 
     documento: str
     pagina: int | None
+    trecho: str
 
 
 @dataclass(frozen=True)
@@ -75,7 +77,7 @@ class ServicoChat:
     ) -> list[FonteResposta]:
         """Cria fontes a partir dos chunks, sem pedir metadados à LLM."""
         fontes: list[FonteResposta] = []
-        fontes_vistas: set[tuple[str, int | None]] = set()
+        fontes_vistas: set[tuple[str, int | None, str]] = set()
 
         for resultado in resultados:
             documento = self.repositorio_documento.obter_por_id(
@@ -83,10 +85,23 @@ class ServicoChat:
             )
             if documento is None:
                 continue
-            chave = (documento.nome_arquivo, resultado.trecho.pagina)
+            trecho = self._criar_previa(resultado.trecho.conteudo)
+            chave = (documento.nome_arquivo, resultado.trecho.pagina, trecho)
             if chave not in fontes_vistas:
                 fontes.append(
-                    FonteResposta(documento=documento.nome_arquivo, pagina=resultado.trecho.pagina)
+                    FonteResposta(
+                        documento=documento.nome_arquivo,
+                        pagina=resultado.trecho.pagina,
+                        trecho=trecho,
+                    )
                 )
                 fontes_vistas.add(chave)
         return fontes
+
+    @staticmethod
+    def _criar_previa(conteudo: str) -> str:
+        """Limita a citação para manter a resposta legível e econômica."""
+        texto_normalizado = " ".join(conteudo.split())
+        if len(texto_normalizado) <= LIMITE_CARACTERES_PREVIA_FONTE:
+            return texto_normalizado
+        return f"{texto_normalizado[:LIMITE_CARACTERES_PREVIA_FONTE - 1].rstrip()}…"
