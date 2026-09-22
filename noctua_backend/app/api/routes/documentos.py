@@ -10,6 +10,7 @@ from app.repositories.repositorio_documento import RepositorioDocumento
 from app.schemas.documento import DocumentoDetalhe, DocumentoResumo
 from app.services.servico_documento import (
     ErroDocumento,
+    ErroEnfileiramentoDocumento,
     ErroProcessamentoDocumento,
     ServicoDocumento,
 )
@@ -30,13 +31,15 @@ async def enviar_documento(
     arquivo: UploadFile = File(...),
     servico: ServicoDocumento = Depends(obter_servico_documento),
 ) -> DocumentoDetalhe:
-    """Recebe um PDF ou TXT, extrai o texto e registra seus metadados."""
+    """Recebe um PDF ou TXT e o envia para processamento em segundo plano."""
     try:
         documento = servico.criar(arquivo.filename or "", await arquivo.read())
     except ErroDocumento as erro:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(erro)) from erro
     except ErroProcessamentoDocumento as erro:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(erro)) from erro
+    except ErroEnfileiramentoDocumento as erro:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(erro)) from erro
 
     return DocumentoDetalhe.model_validate(documento)
 
@@ -70,6 +73,8 @@ async def reindexar_documento(
     """Gera chunks e embeddings de um documento existente."""
     try:
         documento = servico.reindexar(identificador)
+    except ErroEnfileiramentoDocumento as erro:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(erro)) from erro
     except RuntimeError as erro:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

@@ -52,8 +52,8 @@ export default function App() {
     setEstado('neutro')
   }
 
-  async function carregarDocumentos() {
-    setCarregandoDocumentos(true)
+  async function carregarDocumentos(exibirCarregamento = true) {
+    if (exibirCarregamento) setCarregandoDocumentos(true)
     try {
       const lista = await requisitarApi<Documento[]>('/documents', {
         headers: cabecalhosAutorizacao(),
@@ -61,10 +61,12 @@ export default function App() {
       })
       setDocumentos(lista)
     } catch (erro) {
-      setEstado('erro')
-      setMensagem(mensagemErro(erro, 'Não foi possível carregar os documentos.'))
+      if (exibirCarregamento) {
+        setEstado('erro')
+        setMensagem(mensagemErro(erro, 'Não foi possível carregar os documentos.'))
+      }
     } finally {
-      setCarregandoDocumentos(false)
+      if (exibirCarregamento) setCarregandoDocumentos(false)
     }
   }
 
@@ -82,6 +84,18 @@ export default function App() {
   useEffect(() => {
     if (autenticado) void carregarDocumentos()
   }, [autenticado])
+
+  const possuiDocumentosEmProcessamento = documentos.some(documento => (
+    documento.status === 'pending' || documento.status === 'processing'
+  ))
+
+  useEffect(() => {
+    if (!autenticado || !possuiDocumentosEmProcessamento) return
+
+    void carregarDocumentos(false)
+    const intervalo = window.setInterval(() => void carregarDocumentos(false), 3000)
+    return () => window.clearInterval(intervalo)
+  }, [autenticado, possuiDocumentosEmProcessamento])
 
   async function entrar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()

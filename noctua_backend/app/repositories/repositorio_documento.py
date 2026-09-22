@@ -44,3 +44,11 @@ class RepositorioDocumento:
             Documento.organizacao_id == organizacao_id,
         )
         return self.sessao.scalar(consulta)
+
+    def obter_por_id_interno(self, identificador: uuid.UUID) -> Documento | None:
+        """Obtém um documento para processamento interno do servidor.
+
+        Este método não é exposto às rotas: o worker recebe somente o
+        identificador produzido pela própria API e nunca dados de tenant do cliente.
+        """
+        return self.sessao.get(Documento, identificador)

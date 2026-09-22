@@ -19,6 +19,12 @@ services:
       timeout: 5s
       retries: 10
 
+  permissoes_arquivos:
+    image: busybox:1.37
+    command: ["sh", "-c", "chown -R 10001:10001 /app/arquivos"]
+    volumes:
+      - documentos_data:/app/arquivos
+
   backend:
     build:
       context: ./noctua_backend
@@ -26,13 +32,50 @@ services:
       - path: .env
         required: false
     environment:
-      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-knowledge_agent}:${POSTGRES_PASSWORD:-change-me-locally}@postgres:5432/${POSTGRES_DB:-knowledge_agent}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://${POSTGRES_USER:-knowledge_agent}:${POSTGRES_PASSWORD:-change-me-locally}@postgres:5432/${POSTGRES_DB:-knowledge_agent}}
       DIRETORIO_ARQUIVOS: /app/arquivos
+      REDIS_URL: redis://redis:6379/0
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     depends_on:
       postgres:
         condition: service_healthy
+      permissoes_arquivos:
+        condition: service_completed_successfully
+    volumes:
+      - documentos_data:/app/arquivos
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  worker:
+    build:
+      context: ./noctua_backend
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://${POSTGRES_USER:-knowledge_agent}:${POSTGRES_PASSWORD:-change-me-locally}@postgres:5432/${POSTGRES_DB:-knowledge_agent}}
+      DIRETORIO_ARQUIVOS: /app/arquivos
+      REDIS_URL: redis://redis:6379/0
+    command: ["uv", "run", "--no-sync", "celery", "-A", "app.infrastructure.celery.aplicacao_celery", "worker", "--loglevel=INFO", "--concurrency=1"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      permissoes_arquivos:
+        condition: service_completed_successfully
     volumes:
       - documentos_data:/app/arquivos
 
@@ -50,3 +93,4 @@ services:
 volumes:
   postgres_data:
   documentos_data:
+  redis_data:
