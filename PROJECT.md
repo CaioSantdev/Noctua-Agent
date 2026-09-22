@@ -83,6 +83,17 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 - API e worker usam o usuário sem privilégios `noctua`; o serviço de inicialização
   `permissoes_arquivos` prepara a posse do volume persistente antes dos dois serviços.
 
+## Deploy - Railway, Supabase e Vercel
+
+- A branch `feature/deploy-railway` prepara o deploy de demonstração.
+- Supabase Storage substitui o compartilhamento de diretório local entre API e worker
+  em produção; a chave `service_role` permanece exclusiva do backend.
+- URLs PostgreSQL genéricas são normalizadas para o driver `psycopg` usado pela API.
+- A migration de trechos habilita `vector` antes de criar a coluna de embeddings em
+  bancos novos.
+- CORS é configurável por `ORIGENS_CORS`, e o frontend possui rewrite Vercel para as
+  rotas SPA.
+
 ## Sprint 6 - Interface web
 
 - Tipos de ambiente do Vite declarados em `src/vite-env.d.ts`.

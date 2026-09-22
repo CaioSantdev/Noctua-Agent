@@ -5,7 +5,7 @@ from pathlib import Path
 from pypdf import PdfReader
 
 from app.core.config import obter_configuracoes
-from app.infrastructure.armazenamento import ArmazenamentoLocal
+from app.infrastructure.armazenamento import obter_armazenamento
 from app.infrastructure.fila_tarefas import (
     ErroEnfileiramentoDocumento,
     enfileirar_processamento_documento,
@@ -33,7 +33,7 @@ class ServicoDocumento:
     def __init__(self, repositorio: RepositorioDocumento, organizacao_id: uuid.UUID) -> None:
         self.repositorio = repositorio
         self.organizacao_id = organizacao_id
-        self.armazenamento = ArmazenamentoLocal(obter_configuracoes().diretorio_arquivos)
+        self.armazenamento = obter_armazenamento(obter_configuracoes())
         self.servico_rag = ServicoRag(RepositorioTrecho(repositorio.sessao))
 
     def criar(self, nome_arquivo: str, conteudo: bytes) -> Documento:
@@ -99,7 +99,7 @@ class ServicoDocumento:
         try:
             conteudo = self.armazenamento.ler(documento.caminho_arquivo)
             documento.texto_extraido = self._extrair_texto(documento.extensao, conteudo)
-            self.servico_rag.indexar_documento(documento)
+            self.servico_rag.indexar_documento(documento, conteudo)
             documento.status = StatusDocumento.PRONTO
             return self.repositorio.atualizar(documento)
         except Exception as erro:

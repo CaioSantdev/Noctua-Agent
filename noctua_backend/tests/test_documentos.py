@@ -98,7 +98,7 @@ def test_worker_processa_documento_pendente_ate_pronto(monkeypatch, tmp_path) ->
     monkeypatch.setattr(
         ServicoRag,
         "indexar_documento",
-        lambda _, documento: estados_durante_indexacao.append(documento.status),
+        lambda servico, documento, *_argumentos: estados_durante_indexacao.append(documento.status),
     )
 
     engine = create_engine("sqlite+pysqlite://", poolclass=StaticPool)

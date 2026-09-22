@@ -114,10 +114,14 @@ inclusive para arquivos persistidos de execuções anteriores.
 
 ## Deploy
 
-Antes de publicar, configure no provedor escolhido as variáveis `DATABASE_URL`,
-`REDIS_URL`, `JWT_SECRET`, `OPENAI_API_KEY`, `DIRETORIO_ARQUIVOS` e a origem permitida
-no CORS. PostgreSQL, Redis e os arquivos enviados devem usar armazenamento persistente.
-Nunca copie o arquivo `.env` local para o repositório ou para o frontend.
+O deploy de demonstração usa Supabase para PostgreSQL com pgvector e Storage privado,
+Railway para API, Redis e worker Celery, e Vercel para o frontend. O backend seleciona
+automaticamente o Supabase Storage quando `SUPABASE_URL` e
+`SUPABASE_SERVICE_ROLE_KEY` estão configuradas; no desenvolvimento, continua usando o
+volume local.
+
+Consulte o passo a passo completo em [docs/DEPLOY_RAILWAY.md](docs/DEPLOY_RAILWAY.md).
+Nunca copie o arquivo `.env` local para o repositório, Vercel ou frontend.
 
 ## Próximas evoluções
 
