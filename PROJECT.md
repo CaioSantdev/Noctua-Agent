@@ -2,8 +2,8 @@
 
 ## Estado atual
 
-Sprint 6 concluída no frontend. Sprint 7 em andamento: processamento assíncrono de
-documentos com Redis e Celery.
+Sprints 0 a 7 concluídas. O Noctua possui processamento assíncrono de documentos
+com Redis e Celery e está publicado com Supabase, Railway e Vercel.
 
 Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, backend e PostgreSQL com pgvector habilitado, e os ambientes versionados por `uv` (`noctua_backend/uv.lock`) e npm (`noctua_frontend/package-lock.json`).
 
@@ -11,7 +11,7 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 
 - `docker compose config --quiet`
 - Build das imagens de backend e frontend
-- `pytest`: testes de saúde, documentos, chunking e isolamento de organização aprovados.
+- `pytest`: 21 testes de saúde, documentos, chunking, chat, RAG, resiliência e isolamento de organização aprovados.
 - Build TypeScript/Vite do frontend
 - `GET /health` retornando `{"status":"ok"}` com conexão real ao PostgreSQL
 - PostgreSQL saudável com extensão `vector` habilitada
@@ -31,7 +31,7 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 - Extração, chunking com sobreposição, embeddings OpenAI e persistência em pgvector implementados.
 - Reindexação de documentos já enviados disponível em `POST /documents/{id}/reindex`.
 - Retrieval sem LLM validado com pgvector e filtro pela organização do backend.
-- Consulta de PDF real validada em português, inglês e alemão. O limiar padrão é `0.30`, adequado como ponto inicial para recuperação multilíngue.
+- Consulta de PDF real validada em português, inglês e alemão. A configuração recomendada para o MVP usa limiar de similaridade `0.35` e até dois trechos recuperados, equilibrando recuperação multilíngue, precisão e custo.
 
 ## Sprint 3 - RAG + LLM
 
@@ -67,11 +67,6 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 - O guia de deploy orienta o uso do Session pooler do Supabase para ambientes
   IPv4, como Docker local e provedores de nuvem.
 
-## Ainda não implementado
-
-- Finalizar a validação integrada do worker Celery com Redis e PostgreSQL em Docker.
-- Deploy em nuvem da aplicação e documentação da infraestrutura escolhida.
-
 ## Sprint 7 - Processamento assíncrono
 
 - Criada a branch `feature/sprint-7-processamento-assincrono`.
@@ -89,10 +84,11 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
   por uma tela de carregamento.
 - API e worker usam o usuário sem privilégios `noctua`; o serviço de inicialização
   `permissoes_arquivos` prepara a posse do volume persistente antes dos dois serviços.
+- Fluxo integrado validado com Redis, Celery e PostgreSQL; o dashboard atualiza os status sem recarga manual.
 
 ## Deploy - Railway, Supabase e Vercel
 
-- A branch `feature/deploy-railway` prepara o deploy de demonstração.
+- A `main` é a referência de produção para os deploys de demonstração.
 - Supabase Storage substitui o compartilhamento de diretório local entre API e worker
   em produção; a chave `service_role` permanece exclusiva do backend.
 - URLs PostgreSQL genéricas são normalizadas para o driver `psycopg` usado pela API.
