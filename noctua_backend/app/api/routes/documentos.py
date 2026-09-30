@@ -65,6 +65,16 @@ async def obter_documento(
     return DocumentoDetalhe.model_validate(documento)
 
 
+@roteador.delete("/{identificador}", status_code=status.HTTP_204_NO_CONTENT)
+async def remover_documento(
+    identificador: uuid.UUID,
+    servico: ServicoDocumento = Depends(obter_servico_documento),
+) -> None:
+    """Remove um documento e seus trechos somente da organização autenticada."""
+    if not servico.remover(identificador):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento não encontrado.")
+
+
 @roteador.post("/{identificador}/reindex", response_model=DocumentoDetalhe)
 async def reindexar_documento(
     identificador: uuid.UUID,

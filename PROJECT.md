@@ -108,5 +108,11 @@ Esta primeira etapa cria a estrutura do monorepo, os containers de frontend, bac
 - Respostas do chat apresentam suas fontes; respostas 401 encerram a sessão local.
 - O painel central alterna entre envio e chat, incluindo as ilustrações correspondentes em `public/imagens`.
 - O frontend é organizado em páginas, componentes reutilizáveis, tipos compartilhados e serviço de comunicação com a API.
-- Cartões de documentos preservam nomes longos dentro do contorno e distinguem arquivos TXT em azul.
+- Cartões de documentos distinguem arquivos TXT em azul e mostram o nome em até duas linhas, sem competir com as ações de gestão.
 - Estilos do frontend são separados por escopo em `src/styles`, com regras globais, variáveis, login, dashboard, cabeçalho e cartões de documentos.
+
+## Gestão de documentos
+
+- `DELETE /documents/{id}` remove o documento, seus trechos e o arquivo armazenado, sempre filtrado pela organização autenticada.
+- Documentos com status `Falhou` exibem uma ação de reindexação que reutiliza `POST /documents/{id}/reindex`.
+- O dashboard confirma a remoção antes de executá-la e atualiza a lista sem recarregar a página.
