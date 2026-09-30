@@ -91,6 +91,17 @@ class ServicoDocumento:
             raise
         return documento
 
+    def remover(self, identificador: uuid.UUID) -> bool:
+        """Remove documento, trechos e arquivo, respeitando a organização atual."""
+        documento = self.obter(identificador)
+        if documento is None:
+            return False
+
+        self.servico_rag.repositorio.remover_por_documento(documento.id)
+        self.repositorio.remover(documento)
+        self.armazenamento.remover(documento.caminho_arquivo)
+        return True
+
     def processar(self, documento: Documento) -> Documento:
         """Extrai texto, gera embeddings e atualiza o estado do documento."""
         documento.status = StatusDocumento.PROCESSANDO

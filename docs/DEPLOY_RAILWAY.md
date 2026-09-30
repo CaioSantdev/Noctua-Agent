@@ -30,8 +30,7 @@ automaticamente e habilita a extensão `vector` em bancos novos.
 
 Crie um projeto e adicione um banco **Redis** pelo menu **New > Database**.
 
-Depois crie dois serviços a partir do repositório GitHub e da branch
-`feature/deploy-railway`:
+Depois crie dois serviços a partir do repositório GitHub e da branch `main`:
 
 | Serviço | Root Directory | Comando de início | Domínio público |
 | --- | --- | --- | --- |
@@ -52,12 +51,12 @@ JWT_SECRET=...
 EXPIRACAO_TOKEN_MINUTOS=60
 DIRETORIO_ARQUIVOS=/tmp/noctua-arquivos
 MAX_PAGINAS_PDF=5
-LIMIAR_SIMILARIDADE=0.30
-MAX_TRECHOS_RECUPERADOS=5
+LIMIAR_SIMILARIDADE=0.35
+MAX_TRECHOS_RECUPERADOS=2
 MAX_TOKENS_CONTEXTO=4000
 MAX_TOKENS_RESPOSTA=500
 MODELO_EMBEDDING=text-embedding-3-small
-MODELO_LLM=gpt-4.1-mini
+MODELO_LLM=gpt-4.1
 ```
 
 No `backend`, defina inicialmente `ORIGENS_CORS=http://localhost:5173`. Gere o domínio
@@ -65,7 +64,7 @@ público Railway e valide `https://SEU_BACKEND.up.railway.app/health`.
 
 ## 3. Publicar o frontend na Vercel
 
-1. Importe o mesmo repositório GitHub e selecione a branch `feature/deploy-railway`.
+1. Importe o mesmo repositório GitHub e selecione a branch `main`.
 2. Defina `noctua_frontend` como **Root Directory**.
 3. Configure a variável de ambiente de build:
 
@@ -88,7 +87,7 @@ Em seguida, redeploy o backend e o frontend.
 
 1. Acesse o frontend Vercel e cadastre uma conta.
 2. Envie um TXT pequeno e acompanhe `pending`, `processing` e `ready`.
-3. Faça uma pergunta no chat e confirme a fonte retornada.
+3. Faça uma pergunta no chat e confirme o nome do arquivo, a página quando disponível e a prévia curta do trecho retornados como fonte.
 4. Consulte os logs do backend e worker pela Railway.
 
 Ao terminar a análise, remova os serviços Railway ou deixe o projeto parar para evitar

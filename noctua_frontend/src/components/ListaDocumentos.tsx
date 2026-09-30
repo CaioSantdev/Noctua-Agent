@@ -4,13 +4,22 @@ import '../styles/DocumentCard.css'
 type PropsListaDocumentos = {
   documentos: Documento[]
   carregando: boolean
+  documentoEmAcao: string | null
+  aoRemover: (documento: Documento) => void
+  aoReindexar: (documento: Documento) => void
 }
 
 function rotuloStatus(status: string) {
   return ({ pending: 'Pendente', processing: 'Processando', ready: 'Pronto', failed: 'Falhou' } as Record<string, string>)[status] ?? status
 }
 
-export function ListaDocumentos({ documentos, carregando }: PropsListaDocumentos) {
+export function ListaDocumentos({
+  documentos,
+  carregando,
+  documentoEmAcao,
+  aoRemover,
+  aoReindexar,
+}: PropsListaDocumentos) {
   return (
     <section className="documentos-organizacao">
       <div className="cabecalho-documentos">
@@ -34,6 +43,30 @@ export function ListaDocumentos({ documentos, carregando }: PropsListaDocumentos
                   <span className={`status-documento ${documento.status}`}>
                     {rotuloStatus(documento.status)}
                   </span>
+                </div>
+                <div className="acoes-documento">
+                  {documento.status === 'failed' && (
+                    <button
+                      className="botao-acao-documento botao-reindexar"
+                      type="button"
+                      title="Reindexar documento"
+                      aria-label={`Reindexar ${documento.nome_arquivo}`}
+                      disabled={documentoEmAcao === documento.id}
+                      onClick={() => aoReindexar(documento)}
+                    >
+                      ↻
+                    </button>
+                  )}
+                  <button
+                    className="botao-acao-documento botao-remover"
+                    type="button"
+                    title="Remover documento"
+                    aria-label={`Remover ${documento.nome_arquivo}`}
+                    disabled={documentoEmAcao === documento.id}
+                    onClick={() => aoRemover(documento)}
+                  >
+                    ×
+                  </button>
                 </div>
               </li>
             )

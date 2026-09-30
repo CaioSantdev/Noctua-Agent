@@ -70,6 +70,19 @@ def test_enviar_listar_e_obter_documento_txt(monkeypatch, tmp_path) -> None:
             resposta_detalhe = cliente.get(f"/documents/{documento['id']}")
             assert resposta_detalhe.status_code == 200
             assert resposta_detalhe.json()["tamanho_bytes"] == len(b"O Noctua armazena documentos.")
+
+            caminho_arquivo = tmp_path / "arquivos" / f"{documento['id']}.txt"
+            assert caminho_arquivo.exists()
+
+            resposta_reindexacao = cliente.post(f"/documents/{documento['id']}/reindex")
+            assert resposta_reindexacao.status_code == 200
+            assert resposta_reindexacao.json()["status"] == StatusDocumento.PENDENTE
+            assert tarefas_enfileiradas == [uuid.UUID(documento["id"]), uuid.UUID(documento["id"])]
+
+            resposta_remocao = cliente.delete(f"/documents/{documento['id']}")
+            assert resposta_remocao.status_code == 204
+            assert not caminho_arquivo.exists()
+            assert cliente.get("/documents").json() == []
     finally:
         app.dependency_overrides.clear()
         obter_configuracoes.cache_clear()

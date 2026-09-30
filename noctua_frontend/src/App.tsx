@@ -26,6 +26,7 @@ export default function App() {
   const [estado, setEstado] = useState<'neutro' | 'carregando' | 'sucesso' | 'erro'>('neutro')
   const [mensagem, setMensagem] = useState('')
   const [carregandoDocumentos, setCarregandoDocumentos] = useState(false)
+  const [documentoEmAcao, setDocumentoEmAcao] = useState<string | null>(null)
 
   const cadastro = rota === '/cadastro'
 
@@ -173,6 +174,54 @@ export default function App() {
     }
   }
 
+  async function removerDocumento(documento: Documento) {
+    if (!window.confirm(`Remover "${documento.nome_arquivo}" permanentemente?`)) return
+
+    setDocumentoEmAcao(documento.id)
+    setEstado('carregando')
+    setMensagem(`Removendo ${documento.nome_arquivo}…`)
+
+    try {
+      await requisitarApi<void>(`/documents/${documento.id}`, {
+        method: 'DELETE',
+        headers: cabecalhosAutorizacao(),
+        aoNaoAutorizado: encerrarSessao,
+      })
+      setDocumentos(documentosAtuais => documentosAtuais.filter(item => item.id !== documento.id))
+      setEstado('sucesso')
+      setMensagem('Documento removido com sucesso.')
+    } catch (erro) {
+      setEstado('erro')
+      setMensagem(mensagemErro(erro, 'Não foi possível remover o documento.'))
+    } finally {
+      setDocumentoEmAcao(null)
+    }
+  }
+
+  async function reindexarDocumento(documento: Documento) {
+    setDocumentoEmAcao(documento.id)
+    setEstado('carregando')
+    setMensagem(`Reindexando ${documento.nome_arquivo}…`)
+
+    try {
+      const documentoAtualizado = await requisitarApi<Documento>(`/documents/${documento.id}/reindex`, {
+        method: 'POST',
+        headers: cabecalhosAutorizacao(),
+        aoNaoAutorizado: encerrarSessao,
+      })
+      setDocumentos(documentosAtuais => documentosAtuais.map(item => (
+        item.id === documentoAtualizado.id ? documentoAtualizado : item
+      )))
+      setEstado('sucesso')
+      setMensagem('Documento reenviado para indexação.')
+    } catch (erro) {
+      setEstado('erro')
+      setMensagem(mensagemErro(erro, 'Não foi possível reindexar o documento.'))
+    } finally {
+      setDocumentoEmAcao(null)
+    }
+  }
+
   function alterarArquivo(evento: ChangeEvent<HTMLInputElement>) {
     setArquivo(evento.target.files?.[0] ?? null)
   }
@@ -205,6 +254,9 @@ export default function App() {
         aoAlterarPergunta={alterarPergunta}
         aoPressionarTecla={enviarAoPressionarEnter}
         aoPerguntar={perguntar}
+        documentoEmAcao={documentoEmAcao}
+        aoRemoverDocumento={removerDocumento}
+        aoReindexarDocumento={reindexarDocumento}
       />
     )
   }

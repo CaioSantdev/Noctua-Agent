@@ -26,6 +26,9 @@ type PropsDashboard = {
   aoAlterarPergunta: (evento: ChangeEvent<HTMLInputElement>) => void
   aoPressionarTecla: (evento: KeyboardEvent<HTMLInputElement>) => void
   aoPerguntar: () => void
+  documentoEmAcao: string | null
+  aoRemoverDocumento: (documento: Documento) => void
+  aoReindexarDocumento: (documento: Documento) => void
 }
 
 export function Dashboard({
@@ -46,6 +49,9 @@ export function Dashboard({
   aoAlterarPergunta,
   aoPressionarTecla,
   aoPerguntar,
+  documentoEmAcao,
+  aoRemoverDocumento,
+  aoReindexarDocumento,
 }: PropsDashboard) {
   const imagemModo = modo === 'enviar'
     ? { caminho: '/imagens/coruja_livro_insere.jpg', descricao: 'Coruja Noctua organizando livros' }
@@ -120,7 +126,13 @@ export function Dashboard({
           )}
         </div>
 
-        <ListaDocumentos documentos={documentos} carregando={carregandoDocumentos} />
+        <ListaDocumentos
+          documentos={documentos}
+          carregando={carregandoDocumentos}
+          documentoEmAcao={documentoEmAcao}
+          aoRemover={aoRemoverDocumento}
+          aoReindexar={aoReindexarDocumento}
+        />
       </section>
     </main>
   )
