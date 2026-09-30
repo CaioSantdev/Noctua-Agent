@@ -26,6 +26,11 @@ class RepositorioDocumento:
         self.sessao.refresh(documento)
         return documento
 
+    def remover(self, documento: Documento) -> None:
+        """Exclui um documento já restrito à organização solicitante."""
+        self.sessao.delete(documento)
+        self.sessao.commit()
+
     def listar(self, organizacao_id: uuid.UUID) -> list[Documento]:
         """Lista documentos do mais recente para o mais antigo."""
         consulta = (
